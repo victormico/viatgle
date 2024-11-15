@@ -1,0 +1,582 @@
+{
+    "alacanti": [
+        "alcoia",
+        "marina_baixa",
+        "baix_vinalopo",
+        "vinalopo_mitja",
+        "valls_del_vinalopo"
+    ],
+    "alcalaten": [
+        "alt_maestrat",
+        "alt_millars",
+        "plana_alta",
+        "plana_baixa"
+    ],
+    "alcoia": [
+        "vall_d_albaida",
+        "comtat",
+        "marina_baixa",
+        "alacanti",
+        "alt_vinalopo",
+        "valls_del_vinalopo"
+    ],
+    "alt_camp": [
+        "anoia",
+        "alt_penedes",
+        "baix_penedes",
+        "tarragones",
+        "baix_camp",
+        "conca_de_barbera"
+    ],
+    "alt_emporda": [
+        "rossello",
+        "vallespir",
+        "garrotxa",
+        "pla_de_l_estany",
+        "girones",
+        "baix_emporda"
+    ],
+    "alt_maestrat": [
+        "ports",
+        "baix_maestrat",
+        "plana_alta",
+        "alcalaten"
+    ],
+    "alt_millars": [
+        "alcalaten",
+        "plana_baixa",
+        "alt_palancia"
+    ],
+    "alt_palancia": [
+        "alt_millars",
+        "plana_baixa",
+        "camp_de_morvedre",
+        "camp_de_turia",
+        "serrans"
+    ],
+    "alt_penedes": [
+        "anoia",
+        "baix_llobregat",
+        "garraf",
+        "baix_penedes",
+        "alt_camp"
+    ],
+    "alt_urgell": [
+        "andorra",
+        "cerdanya",
+        "bergueda",
+        "solsones",
+        "noguera",
+        "pallars_sobira",
+        "pallars_jussa"
+    ],
+    "alt_vinalopo": [
+        "costera",
+        "vall_d_albaida",
+        "alcoia",
+        "valls_del_vinalopo",
+        "carxe"
+    ],
+    "alta_cerdanya": [
+        "capcir",
+        "conflent",
+        "ripolles",
+        "cerdanya",
+        "andorra"
+    ],
+    "alta_ribagorca": [
+        "vall_d_aran",
+        "pallars_sobira",
+        "pallars_jussa",
+        "ribagorca"
+    ],
+    "andorra": [
+        "alta_cerdanya",
+        "cerdanya",
+        "alt_urgell",
+        "pallars_sobira"
+    ],
+    "anoia": [
+        "solsones",
+        "bages",
+        "baix_llobregat",
+        "alt_penedes",
+        "alt_camp",
+        "conca_de_barbera",
+        "segarra"
+    ],
+    "bages": [
+        "bergueda",
+        "osona",
+        "moianes",
+        "valles_occidental",
+        "baix_llobregat",
+        "anoia",
+        "solsones"
+    ],
+    "baix_camp": [
+        "baix_ebre",
+        "ribera_d_ebre",
+        "priorat",
+        "conca_de_barbera",
+        "alt_camp",
+        "tarragones"
+    ],
+    "baix_cinca": [
+        "segria",
+        "matarranya"
+    ],
+    "baix_ebre": [
+        "montsia",
+        "matarranya",
+        "terra_alta",
+        "ribera_d_ebre",
+        "baix_camp"
+    ],
+    "baix_emporda": [
+        "alt_emporda",
+        "girones",
+        "selva"
+    ],
+    "baix_llobregat": [
+        "garraf",
+        "alt_penedes",
+        "anoia",
+        "bages",
+        "valles_occidental",
+        "barcelones"
+    ],
+    "baix_maestrat": [
+        "plana_alta",
+        "alt_maestrat",
+        "ports",
+        "matarranya",
+        "montsia"
+    ],
+    "baix_penedes": [
+        "garraf",
+        "alt_penedes",
+        "alt_camp",
+        "tarragones"
+    ],
+    "baix_segura": [
+        "baix_vinalopo",
+        "valls_del_vinalopo"
+    ],
+    "baix_vinalopo": [
+        "baix_segura",
+        "valls_del_vinalopo",
+        "vinalopo_mitja",
+        "alacanti"
+    ],
+    "barcelones": [
+        "baix_llobregat",
+        "valles_occidental",
+        "valles_oriental",
+        "maresme"
+    ],
+    "bergueda": [
+        "alt_urgell",
+        "solsones",
+        "bages",
+        "osona",
+        "ripolles",
+        "cerdanya"
+    ],
+    "camp_de_morvedre": [
+        "alt_palancia",
+        "plana_baixa",
+        "camp_de_turia",
+        "horta"
+    ],
+    "camp_de_turia": [
+        "serrans",
+        "alt_palancia",
+        "camp_de_morvedre",
+        "foia_de_bunyol",
+        "horta"
+    ],
+    "canal_de_navarres": [
+        "costera",
+        "vall_de_cofrents_aiora",
+        "ribera_alta",
+        "foia_de_bunyol"
+    ],
+    "capcir": [
+        "alta_cerdanya",
+        "conflent"
+    ],
+    "carxe": [
+        "alt_vinalopo",
+        "valls_del_vinalopo"
+    ],
+    "cerdanya": [
+        "alta_cerdanya",
+        "andorra",
+        "alt_urgell",
+        "bergueda",
+        "ripolles"
+    ],
+    "comtat": [
+        "alcoia",
+        "vall_d_albaida",
+        "marina_alta",
+        "marina_baixa",
+        "safor"
+    ],
+    "conca_de_barbera": [
+        "alt_camp",
+        "baix_camp",
+        "priorat",
+        "garrigues",
+        "urgell",
+        "segarra",
+        "segarra",
+        "anoia" 
+    ],
+    "conflent": [
+        "capcir",
+        "alta_cerdanya",
+        "ripolles",
+        "vallespir",
+        "rossello",
+        "fenolleda"
+    ],
+    "costera": [
+        "vall_d_albaida",
+        "canal_de_navarres",
+        "ribera_alta",
+        "alt_vinalopo",
+        "safor"
+    ],
+    "eivissa": [],
+    "fenolleda": [
+        "conflent",
+        "rossello"
+    ],
+    "foia_de_bunyol": [
+        "camp_de_turia",
+        "horta",
+        "ribera_alta",
+        "canal_de_navarres",
+        "vall_de_cofrents_aiora",
+        "plana_d_utiel_requena",
+        "serrans"
+    ],
+    "formentera": [],
+    "garraf": [
+        "baix_penedes",
+        "alt_penedes",
+        "baix_llobregat"
+    ],
+    "garrigues": [
+        "segria",
+        "pla_d_urgell",
+        "urgell",
+        "conca_de_barbera",
+        "priorat",
+        "ribera_d_ebre"
+    ],
+    "garrotxa": [
+        "ripolles",
+        "vallespir",
+        "alt_emporda",
+        "pla_de_l_estany",
+        "girones",
+        "selva",
+        "osona"
+    ],
+    "girones": [
+        "baix_emporda",
+        "selva",
+        "garrotxa",
+        "pla_de_l_estany",
+        "alt_emporda"
+    ],
+    "horta": [
+        "ribera_alta",
+        "ribera_baixa",
+        "camp_de_morvedre",
+        "camp_de_turia",
+        "foia_de_bunyol"
+    ],
+    "llitera": [
+        "ribagorca",
+        "noguera",
+        "segria"
+    ],
+    "maresme": [
+        "barcelones",
+        "valles_oriental",
+        "selva"
+    ],
+    "mallorca": [],
+    "marina_alta": [
+        "marina_baixa",
+        "comtat",
+        "safor"
+    ],
+    "marina_baixa": [
+        "marina_alta",
+        "comtat",
+        "alcoia",
+        "alacanti"
+    ],
+    "matarranya": [
+        "baix_cinca",
+        "segria",
+        "ribera_d_ebre",
+        "terra_alta",
+        "baix_ebre",
+        "montsia",
+        "baix_maestrat",
+        "ports"       
+    ],
+    "menorca": [],
+    "moianes": [
+        "bages",
+        "osona",
+        "valles_occidental",
+        "valles_oriental"
+    ],
+    "montsia": [
+        "baix_maestrat",
+        "baix_ebre",
+        "matarranya"
+    ],
+    "noguera": [
+        "segria",
+        "urgell",
+        "pla_d_urgell",
+        "solsones",
+        "alt_urgell",
+        "pallars_jussa",
+        "ribagorca",
+        "llitera",
+        "segarra"
+    ],
+    "osona": [
+        "moianes",
+        "bages",
+        "bergueda",
+        "ripolles",
+        "garrotxa",
+        "selva",
+        "valles_oriental"
+    ],
+    "pallars_jussa": [
+        "ribagorca",
+        "alta_ribagorca",
+        "pallars_sobira",
+        "alt_urgell",
+        "noguera"
+    ],
+    "pallars_sobira": [
+        "andorra",
+        "vall_d_aran",
+        "alta_ribagorca",
+        "pallars_jussa",
+        "alt_urgell"
+    ],
+    "pla_d_urgell": [
+        "garrigues",
+        "urgell",
+        "segria",
+        "noguera"
+    ],
+    "pla_de_l_estany": [
+        "alt_emporda",
+        "girones",
+        "garrotxa"
+    ],
+    "plana_alta": [
+        "plana_baixa",
+        "alcalaten",
+        "alt_maestrat",
+        "baix_maestrat"
+    ],
+    "plana_baixa": [
+        "plana_alta",
+        "alcalaten",
+        "alt_millars",
+        "alt_palancia",
+        "camp_de_morvedre"
+    ],
+    "plana_d_utiel_requena": [
+        "serrans",
+        "foia_de_bunyol",
+        "vall_de_cofrents_aiora"
+    ],
+    "ports": [
+        "baix_maestrat",
+        "matarranya",
+        "alt_maestrat"
+    ],
+    "priorat": [
+        "garrigues",
+        "conca_de_barbera",
+        "baix_camp",
+        "ribera_d_ebre"
+    ],
+    "raco_d_ademus": [],
+    "ribagorca": [
+        "vall_d_aran",
+        "alta_ribagorca",
+        "pallars_jussa",
+        "noguera",
+        "llitera"
+    ],
+    "ribera_alta": [
+        "costera",
+        "canal_de_navarres",
+        "ribera_baixa",
+        "foia_de_bunyol",
+        "horta",
+        "safor"
+    ],
+    "ribera_baixa": [
+        "ribera_alta",
+        "horta",
+        "safor"
+    ],
+    "ribera_d_ebre": [
+        "segria",
+        "garrigues",
+        "priorat",
+        "baix_camp",
+        "baix_ebre",
+        "terra_alta",
+        "matarranya"
+    ],
+    "ripolles": [
+        "garrotxa",
+        "osona",
+        "bergueda",
+        "cerdanya",
+        "alta_cerdanya",
+        "conflent",
+        "vallespir"
+    ],
+    "rossello": [
+        "fenolleda",
+        "conflent",
+        "alt_emporda",
+        "vallespir"
+    ],
+    "safor": [
+        "ribera_baixa",
+        "ribera_alta",
+        "costera",
+        "vall_d_albaida",
+        "comtat",
+        "marina_alta"
+    ],
+    "segarra": [
+        "anoia",
+        "conca_de_barbera",
+        "urgell",
+        "noguera",
+        "solsones"
+    ],
+    "segria": [
+        "llitera",
+        "noguera",
+        "pla_d_urgell",
+        "garrigues",
+        "ribera_d_ebre",
+        "matarranya",
+        "baix_cinca"
+    ],
+    "selva": [
+        "girones",
+        "baix_emporda",
+        "maresme",
+        "valles_oriental",
+        "osona",
+        "garrotxa"
+    ],
+    "serrans": [
+        "alt_palancia",
+        "camp_de_turia",
+        "foia_de_bunyol",
+        "plana_d_utiel_requena"
+    ],
+    "solsones": [
+        "alt_urgell",
+        "bergueda",
+        "bages",
+        "anoia",
+        "segarra",
+        "noguera"
+    ],
+    "tarragones": [
+        "baix_penedes",
+        "alt_camp",
+        "baix_camp"
+    ],
+    "terra_alta": [
+        "matarranya",
+        "ribera_d_ebre",
+        "baix_ebre"
+    ],
+    "urgell": [
+        "segarra",
+        "pla_d_urgell",
+        "noguera",
+        "garrigues",
+        "conca_de_barbera"
+    ],
+    "vall_d_albaida": [
+        "comtat",
+        "alcoia",
+        "alt_vinalopo",
+        "costera",
+        "safor"
+    ],
+    "vall_d_aran": [
+        "ribagorca",
+        "alta_ribagorca",
+        "pallars_sobira"
+    ],
+    "vall_de_cofrents_aiora": [
+        "plana_d_utiel_requena",
+        "foia_de_bunyol",
+        "canal_de_navarres"
+    ],
+    "vallespir": [
+        "conflent",
+        "rossello",
+        "garrotxa",
+        "alt_emporda",
+        "ripolles"
+    ],
+    "valles_occidental": [
+        "bages",
+        "baix_llobregat",
+        "barcelones",
+        "valles_oriental",
+        "moianes"
+    ],
+    "valles_oriental": [
+        "moianes",
+        "osona",
+        "selva",
+        "maresme",
+        "barcelones",
+        "valles_occidental"
+    ],
+    "valls_del_vinalopo": [
+        "alacanti",
+        "alcoia",
+        "vinalopo_mitja",
+        "baix_segura",
+        "baix_vinalopo",
+        "alt_vinalopo",
+        "carxe"
+    ],
+    "vinalopo_mitja": [
+        "valls_del_vinalopo",
+        "baix_vinalopo",
+        "alacanti"
+    ]
+}
