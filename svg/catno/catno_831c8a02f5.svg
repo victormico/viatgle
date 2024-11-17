@@ -1,9 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="546 212 39 37">
   <polygon
-    id="catno_a7dbdccd"
+    id="catno_831c8a02f5"
     class="catno"
     points="585,248.5 546.4,248.5 546.4,212.2 585,212.2 585,248.5 585,248.5"
-    data-info=""
+    data-comarca=""
+    data-capital=""
+    data-pais=""
     style="fill:#cccccc;stroke:#000000;stroke-width:0.5;"
   />
 </svg>
