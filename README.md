@@ -19,5 +19,6 @@ The game has the following known issues:
 
 - Acadèmia Valenciana de la Llengua. [Mapa comarcal de la Comunitat Valenciana](https://www.avl.gva.es/documents/31987/247463/Mapa-de-les-comarques-valencianes.pdf)
 
-# Acknowledgements
-This project uses the svg map of the Catalan countries from [Arnau Bellavista](http://www.sacaix.com) (original code at [BinariEM](https://binariem.com/recursos/mapes/ppcc)).
+- Wikipedia. [Mapa comarcal dels Països Catalans](https://ca.m.wikipedia.org/wiki/Fitxer:Mapa_comarcal_dels_Pa%C3%AFsos_Catalans.svg)
+
+- BinariEM [Mapa de les comarques de parla catalana](https://binariem.com/recursos/mapes/ppcc).
