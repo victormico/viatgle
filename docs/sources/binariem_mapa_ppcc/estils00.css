@@ -1,0 +1,143 @@
+@media all{
+
+	/* Estils generals */
+	body {
+		margin: 0px; padding: 0px;
+		font-family: 'Saira Extra Condensed', sans-serif;
+		font-size: 18px; line-height:28px;
+		color:#000033;
+		background-color: #f2f2f2;
+	}
+	a:link { color:#999900; text-decoration:none;}
+	a:visited { color:#999900; text-decoration:none;}
+	a:active { color:#336699; text-decoration:none;}
+	a:hover { color:#336699; text-decoration:none;}
+	
+	header {
+		text-align:center;
+		margin: 0px auto; padding: 50px 20px 50px 10px;
+		min-height:50px;
+		background: #000033;
+		background-image: url('placa01.png');
+		clear:both;
+			font-size:20px; line-height:26px;
+			color:#cccc00;
+	}
+	
+	article{
+		box-shadow: 0px 0px 50px 10px rgba(0,0,0,0.5);
+		/* box-shadow: 0px 0px 50px 10px #000000; */
+	}
+	
+	#contenidor_flex {
+		display: flex;
+	}
+	#contenidor_flex > div {
+		flex: 1;
+		margin:10px; padding:40px;
+		background-color:#transparent;
+	}
+	
+	footer {
+		text-align: center;
+		margin: 0px; padding: 100px;
+		background: #cccc00;
+			font-size:16px; line-height:26px;
+			color:#666666;
+	}
+	footer a:link { color:#ffffff; text-decoration:none;}
+	footer a:visited { color:#ffffff; text-decoration:none;}
+	footer a:active { color:#999999; text-decoration:none;}
+	footer a:hover { color:#999999; text-decoration:none;}
+		
+		
+		/* Estils del mapa */
+		#ppcc {
+			width:100%;
+		}
+		
+		.nord {
+			fill: #b8b757;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.andorra {
+			fill: #a5a455;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.franja {
+			fill: #b1b051;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.cat {
+			fill: #c6c56d;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.balears {
+			fill: #afae62;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.pv {
+			fill: #b7b646;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.murcia {
+			fill: #a2a143;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.alguer {
+			fill: #aead5d;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.catno {
+			fill: #dddddd;
+			transition: .6s;
+				stroke: #666666 !important;
+				stroke-width:0.6px;
+		}
+		.catno:hover {
+			fill: #cccccc;
+		}
+		
+		.nord:hover, .andorra:hover, .franja:hover, .cat:hover, .balears:hover, .pv:hover, .murcia:hover, .alguer:hover {
+			fill: #cccc00;
+			/* opacity: 0.6; */
+			/* cursor: pointer; */
+		}
+		
+		/* Estils del Tooltip*/
+		#tooltip {
+			display: none;
+			position: absolute;
+			margin: 0px; padding: 10px;
+			color: #eeeeee;
+			background-color: #333333;
+			border-radius: 4px;
+		}
+		.triangle {
+			position: absolute;
+			display:block;
+			border-width: 10px;
+			border-style: solid;
+			margin-top: 0px;
+			margin-left: -28px;
+			border-color: transparent #333333 transparent transparent;
+		}
+
+
+}
