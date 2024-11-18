@@ -1,14 +1,107 @@
-{
-    "catno_0a65e44073" : {
+{   
+    "catno_050a63f9e1e" : {
+        "id" : "camp_de_turia",
+        "class" : "pv",
+        "comarca" : "Camp de Túria",
+        "capital" : "Llíria",
+        "pais" : "País Valencià"
+    },
+    "catno_09115c92a1" : {
+        "id" : "vinalopo_mitja",
+        "class" : "pv",
+        "comarca" : "Vinalopó Mitjà",
+        "capital" : "Asp",
+        "pais" : "País Valencià"
+    },
+    "catno_181d0b4647" : {
+        "id" : "alt_millars",
+        "class" : "pv",
+        "comarca" : "Alt Millars",
+        "capital" : "Cirat",
+        "pais" : "País Valencià"
+    },
+    "catno_213e5bbe67" : {
+        "id" : "baix_segura",
+        "class" : "pv",
+        "comarca" : "Baix Segura",
+        "capital" : "Oriola",
+        "pais" : "País Valencià"
+    }, 
+    "catno_553df9bb2" : {
+        "id" : "foia_de_bunyol",
+        "class" : "pv",
+        "comarca" : "Foia de Bunyol",
+        "capital" : "Xiva",
+        "pais" : "País Valencià"
+    },
+    "catno_57a70be94f" : {
+        "id" : "vall_d_aran",
+        "class" : "oc",
+        "comarca" : "Vall d'Aran",
+        "capital" : "Viella",
+        "pais" : "Occitània"
+    },
+    "catno_61785478462" : {
+        "id" : "vall_de_cofrents_aiora",
+        "class" : "pv",
+        "comarca" : "Vall de Cofrents-Aiora",
+        "capital" : "Aiora",
+        "pais" : "País Valencià"
+    },
+    "catno_70658dceb0f" : {
+        "id" : "canal_de_navarres",
+        "class" : "pv",
+        "comarca" : "Canal de Navarrés",
+        "capital" : "Énguera",
+        "pais" : "País Valencià"
+    },
+    "catno_8d65cdedbf" : {
+        "id" : "fenolleda",
+        "class" : "oc",
+        "comarca" : "Fenolleda",
+        "capital" : "Sant Pau de Fenollet",
+        "pais" : "Occitània"
+    },
+    "catno_a37882c1423" : {
+        "id" : "alt_palancia",
+        "class" : "pv",
+        "comarca" : "Alt Palància",
+        "capital" : "Sogorb",
+        "pais" : "País Valencià"
+    },
+    "catno_d77aa3868bc" : {
+        "id" : "plana_d_utiel_requena",
+        "class" : "pv",
+        "comarca" : "Plana d'Utiel-Requena",
+        "capital" : "Requena",
+        "pais" : "País Valencià"
+    },
+    "catno_dd2d70928d" : {
+        "id" : "serrans",
+        "class" : "pv",
+        "comarca" : "Serrania",
+        "capital" : "Xelva",
+        "pais" : "País Valencià"
+    },                         
+    "catno_e34f1efa5b" : {
         "id" : "alt_vinalopo",
+        "class" : "pv",
         "comarca" : "Alt Vinalopó",
         "capital" : "Villena",
         "pais" : "País Valencià"
     },
-    "catno_15524d2c05" : {
-        "id" : "baix_segura",
-        "comarca" : "Baix Segura",
-        "capital" : "Oriola",
+    "catno_ed77cda6568" : {
+        "id" : "l_alguer",
+        "class" : "sar",
+        "comarca" : "L'alguer",
+        "capital" : "L'alguer",
+        "pais" : "Sardenya"
+    },
+    "catno_fd1b7f642" : {
+        "id" : "raco_d_ademus",
+        "class" : "pv",
+        "comarca" : "Racó d'Ademús",
+        "capital" : "Ademús",
         "pais" : "País Valencià"
     }
 }

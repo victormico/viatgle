@@ -194,7 +194,8 @@
         "alt_palancia",
         "camp_de_morvedre",
         "foia_de_bunyol",
-        "horta"
+        "horta",
+        "plana_d_utiel_requena"
     ],
     "canal_de_navarres": [
         "costera",
@@ -405,7 +406,8 @@
     "plana_d_utiel_requena": [
         "serrans",
         "foia_de_bunyol",
-        "vall_de_cofrents_aiora"
+        "vall_de_cofrents_aiora",
+        "camp_de_turia"
     ],
     "ports": [
         "baix_maestrat",
