@@ -15,6 +15,7 @@ def extract_polygons_from_html(html_file):
         polygons = soup.find_all('polygon')
         return polygons
 
+
 # https://stackoverflow.com/a/69079951
 def to_snake_case(string):
     string = unidecode(string)
