@@ -1,0 +1,4 @@
+bs4
+unidecode
+svgutils
+hashlib
