@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comarques Game</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="game-container">
+    <h1>Comarques Game</h1>
+    <p>Find the shortest path between <span id="start-comarca"></span> and <span id="end-comarca"></span>.</p>
+    
+    <!-- SVG Display -->
+    <div id="svg-display">
+      <div id="start-svg" class="svg-container"></div>
+      <div id="end-svg" class="svg-container"></div>
+    </div>
+
+    <!-- Input for guesses -->
+    <input type="text" id="guess-input" placeholder="Guess an intermediate comarca" />
+    <button id="guess-button">Guess</button>
+    
+    <!-- Feedback and guessed path -->
+    <p id="feedback"></p>
+    <p id="guessed-path">Path so far: <span id="path-display"></span></p>
+
+    <!-- Restart game -->
+    <button id="restart-button">Restart Game</button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
