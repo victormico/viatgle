@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="80 414 43 43">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="52 414 71 43">
   <polygon
     id="camp_de_turia"
     class="pv"
@@ -8,4 +8,8 @@
     data-pais="País Valencià"
     style="fill:#cccccc;stroke:#000000;stroke-width:0.5;"
   />
+  <polygon
+    points="69.5,426.7 67.6,426.7 64.2,428.1 63.4,429.6 60.2,432 58.7,434.9 55.8,432.9 53.3,435.2 53.4,436.3 52.9,437.3 58,441.1 61.2,436.1 67.8,433.1 68.4,430.4 70.6,427.2 "
+    style="fill:#cccccc;stroke:#000000;stroke-width:0.5;"
+  />  
 </svg>
