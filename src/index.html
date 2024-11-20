@@ -3,30 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Comarques Game</title>
+  <title>Viatgle</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="game-container">
-    <h1>Comarques Game</h1>
-    <p>Find the shortest path between <span id="start-comarca"></span> and <span id="end-comarca"></span>.</p>
+    <h1 id="game-title">Today I'd like to go from <span id="start-comarca">Alta Cerdanya</span> to <span id="end-comarca">Maresme</span>.</h1>
     
-    <!-- SVG Display -->
-    <div id="svg-display">
-      <div id="start-svg" class="svg-container"></div>
-      <div id="end-svg" class="svg-container"></div>
+    <!-- Map -->
+    <div id="map-container" class="map-container">
+      <!-- SVG Map will be dynamically loaded here -->
     </div>
 
     <!-- Input for guesses -->
-    <input type="text" id="guess-input" placeholder="Guess an intermediate comarca" />
-    <button id="guess-button">Guess</button>
-    
-    <!-- Feedback and guessed path -->
-    <p id="feedback"></p>
-    <p id="guessed-path">Path so far: <span id="path-display"></span></p>
+    <div class="input-group mb-3 ui-padding autocomplete-drop-down dropup dropdown">
+      <input id="comarques-input" class="form-control input-lg dropdown-toggle" placeholder="Enter a comarca..." aria-describedby="btn-guess" data-bs-toggle="dropdown">
+      <div class="dropdown-menu" id="autocomplete-list"></div>
+      <button id="btn-guess" class="btn btn-outline-success btn-lg guess-button" type="button">Guess (0/5)</button>
+    </div>
 
-    <!-- Restart game -->
-    <button id="restart-button">Restart Game</button>
+    <!-- Feedback -->
+    <p id="feedback" class="feedback-message"></p>
   </div>
 
   <script src="script.js"></script>
