@@ -1,4 +1,4 @@
-let startComarca = "alta_cerdanya"; // Example start
+let startComarca = "ports"; // Example start
 let endComarca = "alt_emporda"; // Example end
 let guessedPath = [];
 let incorrectGuesses = 0;
