@@ -309,38 +309,46 @@ def validate_connections(data):
 
     return errors
 
-def find_shortest_path(start, end, graph):
+def find_shortest_paths(start, end, graph):
     """
-    Troba el camí més curt entre dues comarques utilitzant una cerca en amplada (BFS).
+    Troba tots els camins més curts entre dues comarques utilitzant una cerca en amplada (BFS).
 
     :param start: Comarca inicial (str)
     :param end: Comarca final (str)
     :param graph: Diccionari de comarques i les seves adjacents
-    :return: Llista amb el camí més curt, o None si no hi ha cap camí
+    :return: Llista amb tots els camins més curts
     """
     queue = deque([[start]])  # Pila de camins possibles
     visited = set()           # Conjunt de comarques visitades
+    shortest_paths = []       # Llista per guardar els camins més curts
+    shortest_length = math.inf  # Inicialitzem com infinit
 
     while queue:
         # Obtenim el primer camí de la cua
         path = queue.popleft()
         node = path[-1]
 
-        # Si hem arribat a la comarca final, retornem el camí
+        # Si hem arribat a la comarca final
         if node == end:
-            return path
+            path_length = len(path)
+            if path_length < shortest_length:  # Primer camí més curt trobat
+                shortest_length = path_length
+                shortest_paths = [path]  # Reiniciem amb el nou camí més curt
+            elif path_length == shortest_length:  # Afegim camins de la mateixa longitud
+                shortest_paths.append(path)
 
-        # Si no hem visitat aquest node, explorem els seus veïns
-        if node not in visited:
+        # Si no hem visitat aquest node o el camí actual és curt
+        if node not in visited or len(path) <= shortest_length:
             visited.add(node)
 
             # Afegim camins nous a la cua
             for neighbor in graph.get(node, []):
-                new_path = list(path)  # Fem una còpia del camí actual
-                new_path.append(neighbor)
-                queue.append(new_path)
+                if neighbor not in path:  # Evitem cicles
+                    new_path = list(path)  # Fem una còpia del camí actual
+                    new_path.append(neighbor)
+                    queue.append(new_path)
 
-    return None  # Retorna None si no hi ha cap camí
+    return shortest_paths if shortest_paths else None  # Retorna None si no hi ha cap camí
 
 def replace_viewbox(svg_file, viewbox):
     tree = ET.parse(svg_file)
