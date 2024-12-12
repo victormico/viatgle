@@ -2,3 +2,5 @@ beautifulsoup4
 unidecode
 svgutils
 svg.path
+networkx
+matplotlib

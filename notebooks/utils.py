@@ -309,39 +309,6 @@ def validate_connections(data):
 
     return errors
 
-def find_shortest_path(start, end, graph):
-    """
-    Troba el camí més curt entre dues comarques utilitzant una cerca en amplada (BFS).
-
-    :param start: Comarca inicial (str)
-    :param end: Comarca final (str)
-    :param graph: Diccionari de comarques i les seves adjacents
-    :return: Llista amb el camí més curt, o None si no hi ha cap camí
-    """
-    queue = deque([[start]])  # Pila de camins possibles
-    visited = set()           # Conjunt de comarques visitades
-
-    while queue:
-        # Obtenim el primer camí de la cua
-        path = queue.popleft()
-        node = path[-1]
-
-        # Si hem arribat a la comarca final, retornem el camí
-        if node == end:
-            return path
-
-        # Si no hem visitat aquest node, explorem els seus veïns
-        if node not in visited:
-            visited.add(node)
-
-            # Afegim camins nous a la cua
-            for neighbor in graph.get(node, []):
-                new_path = list(path)  # Fem una còpia del camí actual
-                new_path.append(neighbor)
-                queue.append(new_path)
-
-    return None  # Retorna None si no hi ha cap camí
-
 def replace_viewbox(svg_file, viewbox):
     tree = ET.parse(svg_file)
     root = tree.getroot()
