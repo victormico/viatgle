@@ -1,5 +1,5 @@
 # Viatgle
-A game to find the shortest path between two comarques of the Catalan countries. Inspired by the game [travle.earth](https://travle.earth/)
+A game to find the shortest path between two _comarques_ of the [Catalan Countries](https://en.wikipedia.org/wiki/Catalan_Countries). Inspired by the game [travle.earth](https://travle.earth/).
 
 The preview of the game in development can be found [here](https://victormico.github.io/viatgle/).
 
