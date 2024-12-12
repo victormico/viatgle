@@ -121,6 +121,9 @@ document.getElementById("btn-guess").addEventListener("click", () => {
           showFeedback("You lost! Try again tomorrow.", "red");
           return;
       }
+  } else if (shortestPaths.some(path => path.length === 0)) {
+    showFeedback("You won! Congratulations!", "green");
+    return;
   }
 
   updateGuessButton();
@@ -165,16 +168,24 @@ function checkGuess(comarcaId) {
   // Determine color based on guess quality
   const svgElement = document.querySelector(`g#${comarcaId}`);
   if (isOptimal) {
-      svgElement.querySelector("polygon").style.fill = "green"; // Optimal color
+      setSvgFill(svgElement, "green");
       return true;
   } else if (isGood) {
-      svgElement.querySelector("polygon").style.fill = "green"; // Good color
+      setSvgFill(svgElement, "green");
       return true;
   } else if (isPrettyGood) {
-      svgElement.querySelector("polygon").style.fill = "yellow"; // Pretty good color
+      setSvgFill(svgElement, "yellow");
       return false;
   } else {
-      // svgElement.querySelector("polygon").style.fill = ""; // Default color
+      // setSvgFill(svgElement, ""); // Default color
       return false;
+  }
+}
+
+function setSvgFill(element, color) {
+  // Try both polygon and path
+  const shape = element.querySelector("polygon") || element.querySelector("path");
+  if (shape) {
+    shape.style.fill = color;
   }
 }
