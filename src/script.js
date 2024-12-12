@@ -1,8 +1,11 @@
-let startComarca = "ports"; // Example start
-let endComarca = "alt_emporda"; // Example end
+let startComarca = ""; // Example start
+let endComarca = ""; // Example end
 let guessedPath = [];
+let guesses = 1;
 let incorrectGuesses = 0;
 let shortestPaths = []; // Store the computed shortest path
+let adjacencyMap = {}; // Store the adjacency map for the comarques
+let maxGuesses = 0;
 
 const maxIncorrectGuesses = 5;
 
@@ -28,10 +31,13 @@ async function initializeGame() {
   shortestPaths = gameInfo.shortests_paths;
 
   const response = await fetch("comarques_limitrofes.json");
-  const adjacencyMap = await response.json();
+  adjacencyMap = await response.json();
 
   // print the first shortest path
   console.log("First shortest paths:", shortestPaths[0]);
+
+  maxGuesses = shortestPaths[0].length + maxIncorrectGuesses;
+  document.getElementById("max-guesses").textContent = `${maxGuesses}`;
 
   const svgElement = document.querySelector("svg");
   svgElement.querySelectorAll("g").forEach(group => {
@@ -85,41 +91,41 @@ function populateDropdown(svgElement) {
   });
 }
 
-// Guess handling
+// Guess handling logic update
 document.getElementById("btn-guess").addEventListener("click", () => {
   const guess = document.getElementById("comarques-input").value.trim();
   const svgElement = document.querySelector("svg");
   const comarca = Array.from(svgElement.querySelectorAll("g")).find(
-    g => g.getAttribute("data-comarca").toLowerCase() === guess.toLowerCase()
+      g => g.getAttribute("data-comarca").toLowerCase() === guess.toLowerCase()
   );
 
   if (!comarca) {
-    showFeedback("Invalid comarca!", "red");
-    return;
+      showFeedback("Invalid comarca!", "red");
+      return;
   }
 
   if (guessedPath.includes(comarca.id)) {
-    showFeedback("Already guessed!", "orange");
-    return;
+      showFeedback("Already guessed!", "orange");
+      return;
   }
 
-  // Reveal comarca and check correctness
+  // Reveal comarca and apply color based on correctness
   comarca.style.display = "inline";
   const correct = checkGuess(comarca.id);
-  comarca.querySelector("polygon").style.fill = correct ? "green" : "orange";
   guessedPath.push(comarca.id);
-
+  guesses++;
   // Handle incorrect guess
   if (!correct) {
-    incorrectGuesses++;
-    if (incorrectGuesses >= maxIncorrectGuesses) {
-      showFeedback("You lost! Try again tomorrow.", "red");
-      return;
-    }
+      incorrectGuesses++;
+      if (incorrectGuesses >= maxIncorrectGuesses) {
+          showFeedback("You lost! Try again tomorrow.", "red");
+          return;
+      }
   }
 
   updateGuessButton();
 });
+
 
 function showFeedback(message, color) {
   const feedback = document.getElementById("feedback");
@@ -128,17 +134,47 @@ function showFeedback(message, color) {
 }
 
 function updateGuessButton() {
-  document.getElementById("btn-guess").textContent = `Guess (${incorrectGuesses}/${maxIncorrectGuesses})`;
+  document.getElementById("btn-guess").textContent = `Guess (${guesses}/${maxGuesses})`;
 }
 
 function getComarcaName(comarcaId, svgElement) {
   return svgElement.querySelector(`#${comarcaId}`).getAttribute("data-comarca");
 }
 
+// Updated checkGuess function and coloring logic
 function checkGuess(comarcaId) {
-  return (
-    shortestPath.includes(comarcaId) &&
-    comarcaId !== startComarca &&
-    comarcaId !== endComarca
-  );
+  let isOptimal = false;
+  let isGood = false;
+  let isPrettyGood = false;
+
+  // Check the comarca against the paths
+  shortestPaths.forEach(path => {
+      if (path.length > 0) {
+          if (comarcaId === path[0]) {
+              isOptimal = true;
+              path.shift(); // Remove the guessed comarca from the path
+          } else if (path.includes(comarcaId)) {
+              isGood = true;
+              path.splice(path.indexOf(comarcaId), 1); // Remove guessed comarca from path
+          } else if (path.some(id => adjacencyMap[id].includes(comarcaId))) {
+              isPrettyGood = true;
+          }
+      }
+  });
+
+  // Determine color based on guess quality
+  const svgElement = document.querySelector(`g#${comarcaId}`);
+  if (isOptimal) {
+      svgElement.querySelector("polygon").style.fill = "green"; // Optimal color
+      return true;
+  } else if (isGood) {
+      svgElement.querySelector("polygon").style.fill = "green"; // Good color
+      return true;
+  } else if (isPrettyGood) {
+      svgElement.querySelector("polygon").style.fill = "yellow"; // Pretty good color
+      return false;
+  } else {
+      // svgElement.querySelector("polygon").style.fill = ""; // Default color
+      return false;
+  }
 }
