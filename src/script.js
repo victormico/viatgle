@@ -2,7 +2,7 @@ let startComarca = "ports"; // Example start
 let endComarca = "alt_emporda"; // Example end
 let guessedPath = [];
 let incorrectGuesses = 0;
-let shortestPath = []; // Store the computed shortest path
+let shortestPaths = []; // Store the computed shortest path
 
 const maxIncorrectGuesses = 5;
 
@@ -18,17 +18,30 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initializeGame() {
+  // Load the game data in games/game.json
+  const responseGame = await fetch("games/game.json");
+  const gameInfo = await responseGame.json();
+
+
+  startComarca = gameInfo.start;
+  endComarca = gameInfo.end;
+  shortestPaths = gameInfo.shortests_paths;
+
   const response = await fetch("comarques_limitrofes.json");
   const adjacencyMap = await response.json();
 
-  // Compute the shortest path between start and end comarques
-  shortestPath = findShortestPath(adjacencyMap, startComarca, endComarca);
-  console.log("Shortest path:", shortestPath);
+  // print the first shortest path
+  console.log("First shortest paths:", shortestPaths[0]);
 
-  // Existing initialization logic
   const svgElement = document.querySelector("svg");
   svgElement.querySelectorAll("g").forEach(group => {
-    if (![startComarca, endComarca].includes(group.id)) {
+    if (group.id === startComarca) {
+      group.querySelector("polygon").style.fill = getComputedStyle(document.documentElement)
+        .getPropertyValue('--start-color');
+    } else if (group.id === endComarca) {
+      group.querySelector("polygon").style.fill = getComputedStyle(document.documentElement)
+        .getPropertyValue('--end-color');
+    } else {
       group.style.display = "none";
     }
   });
@@ -129,33 +142,3 @@ function checkGuess(comarcaId) {
     comarcaId !== endComarca
   );
 }
-
-// Helper: Find the shortest path using BFS
-function findShortestPath(map, start, end) {
-  const visited = new Set();
-  const queue = [[start]]; // Each item in the queue is a path
-
-  while (queue.length > 0) {
-    const path = queue.shift();
-    const current = path[path.length - 1];
-
-    if (current === end) {
-      return path; // Return the shortest path
-    }
-
-    if (!visited.has(current)) {
-      visited.add(current);
-
-      // Add neighbors to the queue
-      const neighbors = map[current] || [];
-      for (const neighbor of neighbors) {
-        if (!visited.has(neighbor)) {
-          queue.push([...path, neighbor]);
-        }
-      }
-    }
-  }
-
-  return []; // No path found
-}
-
