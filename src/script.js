@@ -6,6 +6,7 @@ let incorrectGuesses = 0;
 let shortestPaths = []; // Store the computed shortest path
 let adjacencyMap = {}; // Store the adjacency map for the comarques
 let maxGuesses = 0;
+let game_state = {}; // Initialize game state
 
 const maxIncorrectGuesses = 5;
 
@@ -25,13 +26,30 @@ async function initializeGame() {
   const responseGame = await fetch("games/game.json");
   const gameInfo = await responseGame.json();
 
-
   startComarca = gameInfo.start;
   endComarca = gameInfo.end;
   shortestPaths = gameInfo.shortests_paths;
 
   const response = await fetch("comarques_limitrofes.json");
   adjacencyMap = await response.json();
+
+  // Initialize game state
+  game_state = {
+    start: startComarca,
+    end: endComarca,
+    shortests_paths: shortestPaths,
+    remaining_guesses: shortestPaths[0].length + maxIncorrectGuesses,
+    guesses: [],
+    guesses_status: [],
+    progress: shortestPaths.map(path => [...path]),
+    game_running: true,
+    guesses_icons: {
+      optimal: "✅",
+      good: "🟩",
+      pretty_good: "🟧",
+      bad: "🟥"
+    }
+  };
 
   // print the first shortest path
   console.log("First shortest paths:", shortestPaths[0]);
@@ -52,18 +70,13 @@ async function initializeGame() {
     }
   });
 
-  // zoomToComarques(svgElement, [startComarca, endComarca]);
   populateDropdown(svgElement);
   document.getElementById("start-comarca").textContent = getComarcaName(startComarca, svgElement);
   document.getElementById("end-comarca").textContent = getComarcaName(endComarca, svgElement);
 
   guessedPath = [];
   incorrectGuesses = 0;
-  //document.getElementById("feedback").textContent = "";
-  //document.getElementById("path-display").textContent = "";
 }
-
-
 
 function populateDropdown(svgElement) {
   const dropdown = document.getElementById("autocomplete-list");
@@ -111,11 +124,13 @@ document.getElementById("btn-guess").addEventListener("click", () => {
 
   // Reveal comarca and apply color based on correctness
   comarca.style.display = "inline";
-  const correct = checkGuess(comarca.id);
+  const guessIcon = checkGuess(comarca.id);
   guessedPath.push(comarca.id);
   guesses++;
+  updateGuessHistory(guess, guessIcon); // Update guess history
+
   // Handle incorrect guess
-  if (!correct) {
+  if (guessIcon === game_state.guesses_icons.bad) {
       incorrectGuesses++;
       if (incorrectGuesses >= maxIncorrectGuesses) {
           showFeedback("You lost! Try again tomorrow.", "red");
@@ -128,7 +143,6 @@ document.getElementById("btn-guess").addEventListener("click", () => {
 
   updateGuessButton();
 });
-
 
 function showFeedback(message, color) {
   const feedback = document.getElementById("feedback");
@@ -144,14 +158,13 @@ function getComarcaName(comarcaId, svgElement) {
   return svgElement.querySelector(`#${comarcaId}`).getAttribute("data-comarca");
 }
 
-// Updated checkGuess function and coloring logic
 function checkGuess(comarcaId) {
   let isOptimal = false;
   let isGood = false;
   let isPrettyGood = false;
 
   // Check the comarca against the paths
-  shortestPaths.forEach(path => {
+  game_state.shortests_paths.forEach(path => {
       if (path.length > 0) {
           if (comarcaId === path[0]) {
               isOptimal = true;
@@ -165,20 +178,19 @@ function checkGuess(comarcaId) {
       }
   });
 
-  // Determine color based on guess quality
+  // Determine color and icon based on guess quality
   const svgElement = document.querySelector(`g#${comarcaId}`);
   if (isOptimal) {
       setSvgFill(svgElement, "green");
-      return true;
+      return game_state.guesses_icons.optimal;
   } else if (isGood) {
       setSvgFill(svgElement, "green");
-      return true;
+      return game_state.guesses_icons.good;
   } else if (isPrettyGood) {
       setSvgFill(svgElement, "yellow");
-      return false;
+      return game_state.guesses_icons.pretty_good;
   } else {
-      // setSvgFill(svgElement, ""); // Default color
-      return false;
+      return game_state.guesses_icons.bad;
   }
 }
 
@@ -188,4 +200,12 @@ function setSvgFill(element, color) {
   if (shape) {
     shape.style.fill = color;
   }
+}
+
+function updateGuessHistory(guess, icon) {
+  const historyContainer = document.getElementById("guess-history");
+  const guessElement = document.createElement("span");
+  guessElement.className = "guess-box";
+  guessElement.textContent = `${icon} ${guess}`;
+  historyContainer.appendChild(guessElement);
 }
