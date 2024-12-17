@@ -4,7 +4,7 @@ A game to find the shortest path between two _comarques_ of the [Catalan Countri
 The preview of the game in development can be found [here](https://victormico.github.io/viatgle/).
 
 
-# Known issues
+## Known issues
 The game has the following known issues:
 - It does not include the new comarca of Lluçanès.
 - The comarques Horta Nord, Horta Sud and València are considered a single comarca "Horta".
@@ -12,7 +12,7 @@ The game has the following known issues:
 
 
 
-# References
+## References
 - Institut cartogràfic i geològic de Catalunya. [Mapes de comarques](https://www.icgc.cat/ca/Ambits-tematics/Recursos-didactics/Mapes-de-comarques)
 
 - Institut cartogràfic i geològic de Catalunya. [Països Catalans: Mapa comarcal i municipal](https://cartotecadigital.icgc.cat/digital/collection/catalunya/id/3020/)
