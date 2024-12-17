@@ -22,17 +22,43 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initializeGame() {
-  // Load the game data in games/game.json
-  const responseGame = await fetch("games/game.json");
-  const gameInfo = await responseGame.json();
-
-  startComarca = gameInfo.start;
-  endComarca = gameInfo.end;
-  shortestPaths = gameInfo.shortests_paths;
-
+  // Set the start date
+  const startDate = new Date('2024-12-16');
+  const currentDate = new Date();
+  
+  // Calculate the difference in days
+  const diffTime = Math.abs(currentDate - startDate);
+  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  
+  // Load the precomputed pairs
+  const responsePairs = await fetch("pairs.json");
+  const pairs = await responsePairs.json();
+  
+  // Use the difference as an index to select the pair
+  const pairIndex = diffDays % Object.keys(pairs).length;
+  const pair = pairs[pairIndex];
+  
+  startComarca = pair.start;
+  endComarca = pair.end;
+  
+  // Load the all_shortest_paths.json
+  const responsePaths = await fetch("all_shortest_paths.json");
+  const allShortestPaths = await responsePaths.json();
+  
+  shortestPaths = allShortestPaths[startComarca][endComarca];
+  
+  // Remove start and end comarca from each shortest path
+  for (let path of shortestPaths) {
+    if (path[0] === startComarca) {
+      path.shift(); // Remove start comarca
+    }
+    if (path[path.length - 1] === endComarca) {
+      path.pop(); // Remove end comarca
+    }
+  }
   const response = await fetch("comarques_limitrofes.json");
   adjacencyMap = await response.json();
-
+  
   // Initialize game state
   game_state = {
     start: startComarca,
@@ -41,7 +67,6 @@ async function initializeGame() {
     remaining_guesses: shortestPaths[0].length + maxIncorrectGuesses,
     guesses: [],
     guesses_status: [],
-    progress: shortestPaths.map(path => [...path]),
     game_running: true,
     guesses_icons: {
       optimal: "✅",
@@ -50,13 +75,13 @@ async function initializeGame() {
       bad: "🟥"
     }
   };
-
-  // print the first shortest path
+  
+  // Print the first shortest path
   console.log("First shortest paths:", shortestPaths[0]);
-
+  
   maxGuesses = shortestPaths[0].length + maxIncorrectGuesses;
   document.getElementById("max-guesses").textContent = `${maxGuesses}`;
-
+  
   const svgElement = document.querySelector("svg");
   svgElement.querySelectorAll("g").forEach(group => {
     if (group.id === startComarca) {
@@ -69,11 +94,11 @@ async function initializeGame() {
       group.style.display = "none";
     }
   });
-
+  
   populateDropdown(svgElement);
   document.getElementById("start-comarca").textContent = getComarcaName(startComarca, svgElement);
   document.getElementById("end-comarca").textContent = getComarcaName(endComarca, svgElement);
-
+  
   guessedPath = [];
   incorrectGuesses = 0;
 }
