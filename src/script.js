@@ -167,6 +167,9 @@ document.getElementById("btn-guess").addEventListener("click", () => {
   }
 
   updateGuessButton();
+
+  // Clear the input box
+  document.getElementById("comarques-input").value = "";
 });
 
 function showFeedback(message, color) {
