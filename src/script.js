@@ -85,11 +85,9 @@ async function initializeGame() {
   const svgElement = document.querySelector("svg");
   svgElement.querySelectorAll("g").forEach(group => {
     if (group.id === startComarca) {
-      group.querySelector("polygon").style.fill = getComputedStyle(document.documentElement)
-        .getPropertyValue('--start-color');
+      setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--start-color'));
     } else if (group.id === endComarca) {
-      group.querySelector("polygon").style.fill = getComputedStyle(document.documentElement)
-        .getPropertyValue('--end-color');
+      setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--end-color'));
     } else {
       group.style.display = "none";
     }
