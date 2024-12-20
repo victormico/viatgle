@@ -73,3 +73,22 @@ button.guess-button {
   background-color: #f9f9f9;
   margin-right: 1px;
 }
+
+/* Estils del Tooltip*/
+#tooltip {
+  display: none;
+  position: absolute;
+  margin: 0px; padding: 10px;
+  color: #3a3a3a;
+  background-color: #eeeeee80;
+  border-radius: 4px;
+}
+.triangle {
+  position: absolute;
+  display:block;
+  border-width: 10px;
+  border-style: solid;
+  margin-top: 0px;
+  margin-left: -28px;
+  border-color: transparent #eeeeee80 transparent transparent;
+}

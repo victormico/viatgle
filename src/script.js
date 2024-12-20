@@ -127,6 +127,32 @@ function populateDropdown(svgElement) {
   });
 }
 
+// Tooltip handling logic by BinariEM 
+var mapa = document.getElementById("map-container")
+mapa.addEventListener('mouseover', function (e) {
+		
+  var dataComarca = e.target.getAttribute("data-comarca"); // Guardem el nom de la classe en una variable
+  if (dataComarca) {
+    document.getElementById('tooltip').style.display="block"; // Mostrem la capa
+    
+    var contenidor = document.getElementById("tooltip"); // Agafem la capa contenidor
+    contenidor.innerHTML = "<span class='triangle'></span>" + "<div>"+ dataComarca+"</div>"; // Afegim la informació
+    
+    // Amagar quan mouseout
+    document.addEventListener('mouseout', function (f) {
+      document.getElementById('tooltip').style.display="none"; // Amagem la capa
+    });
+  
+    // Seguiment del cursor
+    var tooltip = document.getElementById('tooltip');
+    window.onmousemove = function(s) {
+      var x = s.pageX, y = s.pageY;
+      tooltip.style.left = (x + 20) + 'px';
+      tooltip.style.top = (y - 20) + 'px';
+    };
+  }
+});
+
 // Guess handling logic update
 document.getElementById("btn-guess").addEventListener("click", () => {
   const guess = document.getElementById("comarques-input").value.trim();
