@@ -85,6 +85,7 @@ async function initializeGame() {
   });
 
   populateDropdown(svgElement);
+  initPanZoom(svgElement, document.getElementById("map-container"));
   document.getElementById("start-comarca").textContent = getComarcaName(game_state.start, svgElement);
   document.getElementById("end-comarca").textContent = getComarcaName(game_state.end, svgElement);
 

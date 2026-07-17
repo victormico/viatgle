@@ -40,6 +40,33 @@ h1 {
   position: relative;
   background-color: white;
   margin-bottom: 10px;
+  /* Let the pan/pinch pointer handlers own all touch gestures on the map */
+  touch-action: none;
+  user-select: none;
+}
+
+.zoom-controls {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.zoom-controls button {
+  width: 34px;
+  height: 34px;
+  font-size: 1.1rem;
+  line-height: 1;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #ffffffcc;
+  cursor: pointer;
+}
+
+.zoom-controls button:hover {
+  background-color: #f0f0f0;
 }
 
 /* Comarques start hidden so the full map is never visible while loading;
