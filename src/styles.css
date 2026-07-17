@@ -128,9 +128,169 @@ button.hint-button:disabled {
 
 button.share-button {
   padding: 10px 20px;
-  margin-bottom: 10px;
   font-size: 1rem;
   cursor: pointer;
+}
+
+button.stats-button {
+  margin-left: 10px;
+  padding: 10px 10px;
+  cursor: pointer;
+}
+
+/* End-game / stats modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+/* display:flex above would override the hidden attribute's display:none */
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal {
+  position: relative;
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  width: min(90vw, 340px);
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.modal h2 {
+  margin: 0 30px 16px;
+  font-size: 1.2rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #666;
+}
+
+.stats-grid {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: bold;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.dist-title {
+  font-size: 0.9rem;
+  margin: 0 0 8px;
+}
+
+.distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 16px;
+}
+
+.dist-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dist-label {
+  width: 24px;
+  font-size: 0.8rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dist-bar {
+  background-color: #4caf50;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding: 2px 6px;
+  border-radius: 3px;
+  text-align: right;
+  min-width: 14px;
+  box-sizing: border-box;
+}
+
+.dist-bar-empty {
+  background-color: #ccc;
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid #eee;
+  padding-top: 16px;
+}
+
+.countdown {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.countdown-label {
+  font-size: 0.7rem;
+  color: #666;
+}
+
+.countdown-value {
+  font-size: 1.3rem;
+  font-weight: bold;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Win celebration */
+.confetti {
+  position: fixed;
+  top: -12px;
+  width: 8px;
+  height: 14px;
+  z-index: 200;
+  pointer-events: none;
+  animation: confetti-fall linear forwards;
+}
+
+@keyframes confetti-fall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0.7;
+  }
 }
 
 .guess-history {
