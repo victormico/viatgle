@@ -3,6 +3,7 @@ let game_state = {}; // Initialize game state
 
 const maxIncorrectGuesses = 5;
 const STORAGE_KEY = "viatgle-progress";
+const STATS_KEY = "viatgle-stats";
 const GAME_URL = "https://victormico.github.io/viatgle";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -241,15 +242,15 @@ function applyGuess(comarca, save = true) {
   if (guessIcon === game_state.guesses_icons.bad) {
       game_state.incorrect_guesses++;
       if (game_state.incorrect_guesses >= maxIncorrectGuesses) {
-          endGame(t("lost"), "red");
+          endGame(t("lost"), "red", save);
           return;
       }
   } else if (game_state.shortests_paths.some(path => path.length === 0)) {
-    endGame(t("won"), "green");
+    endGame(t("won"), "green", save);
     return;
   }
 
-  checkOutOfGuesses();
+  checkOutOfGuesses(save);
   updateGuessButton();
 }
 
@@ -289,7 +290,7 @@ function applyHint(save = true) {
   }
 
   updateHintButton();
-  checkOutOfGuesses();
+  checkOutOfGuesses(save);
   updateGuessButton();
 }
 
@@ -349,9 +350,9 @@ function usedGuesses() {
   return game_state.guessed_ids.length + game_state.hints_used;
 }
 
-function checkOutOfGuesses() {
+function checkOutOfGuesses(live = true) {
   if (game_state.game_running && usedGuesses() >= game_state.max_guesses) {
-    endGame(t("out_of_guesses"), "red");
+    endGame(t("out_of_guesses"), "red", live);
   }
 }
 
@@ -368,6 +369,7 @@ function applyTranslations() {
   document.documentElement.lang = currentLang;
   document.getElementById("comarques-input").placeholder = t("input_placeholder");
   document.getElementById("btn-hint").title = t("hint_button_title");
+  document.getElementById("btn-stats").title = t("stats_title");
   document.getElementById("btn-share").textContent = t("share_button");
 
   const langSelect = document.getElementById("lang-select");
@@ -396,14 +398,154 @@ function showFeedback(message, color) {
   feedback.style.color = color;
 }
 
-function endGame(message, color) {
+function endGame(message, color, live = true) {
   game_state.game_running = false;
+  game_state.end_message = message;
   showFeedback(message, color);
   document.getElementById("comarques-input").disabled = true;
   document.getElementById("btn-guess").disabled = true;
   document.getElementById("btn-hint").disabled = true;
-  document.getElementById("btn-share").hidden = false;
+
+  const won = game_state.shortests_paths.some(path => path.length === 0);
+  recordGameEnd(won);
+  if (live && won) {
+    launchConfetti();
+  }
+  setTimeout(openStatsModal, 900);
 }
+
+// ---- Stats, streaks and the end-game modal ----
+
+function loadStats() {
+  let stats = null;
+  try {
+    stats = JSON.parse(localStorage.getItem(STATS_KEY));
+  } catch (err) {
+    // fall through to defaults
+  }
+  return Object.assign({
+    played: 0,
+    wins: 0,
+    current_streak: 0,
+    max_streak: 0,
+    last_recorded_day: null,
+    last_won_day: null,
+    distribution: {}
+  }, stats || {});
+}
+
+// Idempotent per day: replaying a finished game on reload must not
+// count it twice
+function recordGameEnd(won) {
+  const stats = loadStats();
+  if (stats.last_recorded_day === game_state.day) {
+    return stats;
+  }
+  stats.last_recorded_day = game_state.day;
+  stats.played++;
+  if (won) {
+    stats.wins++;
+    stats.current_streak = stats.last_won_day === game_state.day - 1 ? stats.current_streak + 1 : 1;
+    stats.max_streak = Math.max(stats.max_streak, stats.current_streak);
+    stats.last_won_day = game_state.day;
+    const bucket = String(usedGuesses() - game_state.shortest_path_length);
+    stats.distribution[bucket] = (stats.distribution[bucket] || 0) + 1;
+  } else {
+    stats.current_streak = 0;
+    stats.distribution.X = (stats.distribution.X || 0) + 1;
+  }
+  try {
+    localStorage.setItem(STATS_KEY, JSON.stringify(stats));
+  } catch (err) {
+    // Storage unavailable; stats just won't persist
+  }
+  return stats;
+}
+
+let countdownInterval = null;
+
+function openStatsModal() {
+  const stats = loadStats();
+  document.getElementById("modal-title").textContent =
+    game_state.game_running ? t("stats_title") : game_state.end_message;
+
+  document.getElementById("stat-played").textContent = stats.played;
+  document.getElementById("stat-winpct").textContent =
+    stats.played ? Math.round((stats.wins / stats.played) * 100) + "%" : "-";
+  document.getElementById("stat-streak").textContent = stats.current_streak;
+  document.getElementById("stat-maxstreak").textContent = stats.max_streak;
+  document.getElementById("label-played").textContent = t("stat_played");
+  document.getElementById("label-winpct").textContent = t("stat_win_pct");
+  document.getElementById("label-streak").textContent = t("stat_streak");
+  document.getElementById("label-maxstreak").textContent = t("stat_max_streak");
+  document.getElementById("dist-title").textContent = t("dist_title");
+  renderDistribution(stats);
+
+  document.getElementById("btn-share").hidden = game_state.game_running;
+  startCountdown();
+  document.getElementById("modal-overlay").hidden = false;
+}
+
+function closeStatsModal() {
+  document.getElementById("modal-overlay").hidden = true;
+  clearInterval(countdownInterval);
+  countdownInterval = null;
+}
+
+function renderDistribution(stats) {
+  const buckets = ["0", "1", "2", "3", "4", "5", "X"];
+  const maxCount = Math.max(1, ...buckets.map(b => stats.distribution[b] || 0));
+  document.getElementById("distribution").innerHTML = buckets.map(bucket => {
+    const count = stats.distribution[bucket] || 0;
+    const width = Math.max(8, Math.round((count / maxCount) * 100));
+    const label = bucket === "X" ? "X" : "+" + bucket;
+    return `<div class="dist-row"><span class="dist-label">${label}</span>` +
+      `<div class="dist-bar${count ? "" : " dist-bar-empty"}" style="width:${width}%">${count}</div></div>`;
+  }).join("");
+}
+
+function startCountdown() {
+  document.getElementById("countdown-label").textContent = t("next_game");
+  const value = document.getElementById("countdown-value");
+  function tick() {
+    const now = new Date();
+    const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const ms = nextMidnight - now;
+    const h = String(Math.floor(ms / 3600000)).padStart(2, "0");
+    const m = String(Math.floor(ms / 60000) % 60).padStart(2, "0");
+    const s = String(Math.floor(ms / 1000) % 60).padStart(2, "0");
+    value.textContent = `${h}:${m}:${s}`;
+  }
+  tick();
+  clearInterval(countdownInterval);
+  countdownInterval = setInterval(tick, 1000);
+}
+
+function launchConfetti() {
+  const colors = [
+    getComputedStyle(document.documentElement).getPropertyValue("--start-color"),
+    getComputedStyle(document.documentElement).getPropertyValue("--end-color"),
+    "#4caf50", "#ffc107", "#03a9f4"
+  ];
+  for (let i = 0; i < 90; i++) {
+    const piece = document.createElement("div");
+    piece.className = "confetti";
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.backgroundColor = colors[i % colors.length];
+    piece.style.animationDelay = Math.random() * 0.8 + "s";
+    piece.style.animationDuration = 2 + Math.random() * 2 + "s";
+    document.body.appendChild(piece);
+  }
+  setTimeout(() => document.querySelectorAll(".confetti").forEach(p => p.remove()), 5000);
+}
+
+document.getElementById("btn-stats").addEventListener("click", openStatsModal);
+document.getElementById("modal-close").addEventListener("click", closeStatsModal);
+document.getElementById("modal-overlay").addEventListener("click", (e) => {
+  if (e.target.id === "modal-overlay") {
+    closeStatsModal();
+  }
+});
 
 function buildShareText() {
   const gameNumber = game_state.day + 1;
