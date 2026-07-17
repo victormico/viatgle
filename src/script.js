@@ -63,7 +63,9 @@ async function initializeGame() {
     max_guesses: shortestPaths[0].length + maxIncorrectGuesses,
     guessed_ids: [],
     guesses_status: [],
+    events: [],
     incorrect_guesses: 0,
+    hints_used: 0,
     game_running: true,
     guesses_icons: {
       optimal: "✅",
@@ -91,13 +93,14 @@ async function initializeGame() {
 
   restoreProgress(svgElement);
   updateGuessButton();
+  updateHintButton();
 }
 
 function saveProgress() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       day: game_state.day,
-      guessed_ids: game_state.guessed_ids
+      events: game_state.events
     }));
   } catch (err) {
     // Storage unavailable (private mode, quota); the game still works, it
@@ -112,16 +115,29 @@ function restoreProgress(svgElement) {
   } catch (err) {
     return;
   }
-  if (!saved || saved.day !== game_state.day || !Array.isArray(saved.guessed_ids)) {
+  if (!saved || saved.day !== game_state.day) {
     return;
   }
-  for (const comarcaId of saved.guessed_ids) {
-    if (!game_state.game_running || !/^[a-z_]+$/.test(comarcaId)) {
+  // Older saves stored a plain list of guessed ids; convert to events
+  const events = Array.isArray(saved.events)
+    ? saved.events
+    : Array.isArray(saved.guessed_ids)
+      ? saved.guessed_ids.map(id => ({ t: "g", id: id }))
+      : null;
+  if (!events) {
+    return;
+  }
+  for (const event of events) {
+    if (!game_state.game_running) {
       break;
     }
-    const comarca = svgElement.querySelector(`g#${comarcaId}`);
-    if (comarca) {
-      applyGuess(comarca, false);
+    if (event.t === "h") {
+      applyHint(false);
+    } else if (event.t === "g" && /^[a-z_]+$/.test(event.id)) {
+      const comarca = svgElement.querySelector(`g#${event.id}`);
+      if (comarca) {
+        applyGuess(comarca, false);
+      }
     }
   }
 }
@@ -210,10 +226,12 @@ document.getElementById("btn-guess").addEventListener("click", () => {
 
 function applyGuess(comarca, save = true) {
   // Reveal comarca and apply color based on correctness
+  clearHintMarks(comarca);
   comarca.style.display = "inline";
   const guessIcon = checkGuess(comarca.id);
   game_state.guessed_ids.push(comarca.id);
   game_state.guesses_status.push(guessIcon);
+  game_state.events.push({ t: "g", id: comarca.id });
   updateGuessHistory(comarca.getAttribute("data-comarca"), guessIcon);
   if (save) {
     saveProgress();
@@ -231,7 +249,119 @@ function applyGuess(comarca, save = true) {
     return;
   }
 
+  checkOutOfGuesses();
   updateGuessButton();
+}
+
+// Progressive hints (issue #17): each hint costs one guess slot.
+// Level 1 outlines the next optimal comarca, level 2 outlines every
+// comarca still on a shortest path, level 3 adds their initials.
+const maxHints = 3;
+
+function applyHint(save = true) {
+  if (!game_state.game_running || game_state.hints_used >= maxHints) {
+    return;
+  }
+  const svgElement = document.querySelector("svg");
+  game_state.hints_used++;
+
+  let description;
+  if (game_state.hints_used === 1) {
+    outlineComarca(svgElement.querySelector(`g#${game_state.shortests_paths[0][0]}`));
+    description = "Next comarca outlined";
+  } else if (game_state.hints_used === 2) {
+    remainingPathIds().forEach(id => outlineComarca(svgElement.querySelector(`g#${id}`)));
+    description = "All path comarques outlined";
+  } else {
+    remainingPathIds().forEach(id => {
+      const group = svgElement.querySelector(`g#${id}`);
+      outlineComarca(group);
+      addInitials(group);
+    });
+    description = "Path initials shown";
+  }
+
+  game_state.guesses_status.push("💡");
+  game_state.events.push({ t: "h" });
+  updateGuessHistory(description, "💡");
+  if (save) {
+    saveProgress();
+  }
+
+  updateHintButton();
+  checkOutOfGuesses();
+  updateGuessButton();
+}
+
+// Every comarca still left on any shortest path (guessed ones are
+// spliced out by checkGuess)
+function remainingPathIds() {
+  return [...new Set(game_state.shortests_paths.flat())];
+}
+
+function outlineComarca(group) {
+  const shape = group.querySelector("polygon") || group.querySelector("path");
+  if (shape && !shape.dataset.hintOutlined) {
+    // The original fill lives in the shape's inline style attribute, so
+    // remember it to restore when the comarca is guessed
+    shape.dataset.hintOutlined = "true";
+    shape.dataset.prevFill = shape.style.fill;
+    shape.style.fill = "none";
+    shape.style.strokeDasharray = "3 2";
+  }
+  group.style.display = "inline";
+}
+
+function addInitials(group) {
+  if (group.querySelector("text.hint-initials")) {
+    return;
+  }
+  const shape = group.querySelector("polygon") || group.querySelector("path");
+  const bbox = shape.getBBox();
+  const initials = group.getAttribute("data-comarca")
+    .split(/\s+/)
+    .map(word => word[0].toUpperCase())
+    .join("");
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("x", bbox.x + bbox.width / 2);
+  text.setAttribute("y", bbox.y + bbox.height / 2);
+  text.setAttribute("class", "hint-initials");
+  text.textContent = initials;
+  group.appendChild(text);
+}
+
+// Undo hint styling once the comarca is actually guessed
+function clearHintMarks(comarca) {
+  const shape = comarca.querySelector("polygon") || comarca.querySelector("path");
+  if (shape && shape.dataset.hintOutlined) {
+    shape.style.fill = shape.dataset.prevFill;
+    shape.style.strokeDasharray = "";
+    delete shape.dataset.hintOutlined;
+    delete shape.dataset.prevFill;
+  }
+  const initials = comarca.querySelector("text.hint-initials");
+  if (initials) {
+    initials.remove();
+  }
+}
+
+function usedGuesses() {
+  return game_state.guessed_ids.length + game_state.hints_used;
+}
+
+function checkOutOfGuesses() {
+  if (game_state.game_running && usedGuesses() >= game_state.max_guesses) {
+    endGame("Out of guesses! Try again tomorrow.", "red");
+  }
+}
+
+document.getElementById("btn-hint").addEventListener("click", () => applyHint());
+
+function updateHintButton() {
+  const button = document.getElementById("btn-hint");
+  const hintsLeft = maxHints - game_state.hints_used;
+  button.textContent = `💡 (${hintsLeft})`;
+  button.disabled = hintsLeft === 0 || !game_state.game_running;
 }
 
 function showFeedback(message, color) {
@@ -245,13 +375,14 @@ function endGame(message, color) {
   showFeedback(message, color);
   document.getElementById("comarques-input").disabled = true;
   document.getElementById("btn-guess").disabled = true;
+  document.getElementById("btn-hint").disabled = true;
   document.getElementById("btn-share").hidden = false;
 }
 
 function buildShareText() {
   const gameNumber = game_state.day + 1;
   const won = game_state.shortests_paths.some(path => path.length === 0);
-  const extraGuesses = game_state.guessed_ids.length - game_state.shortest_path_length;
+  const extraGuesses = usedGuesses() - game_state.shortest_path_length;
   const score = won ? `+${extraGuesses}` : "X";
   return `#viatgle #${gameNumber} ${score}\n${game_state.guesses_status.join("")}\n${GAME_URL}`;
 }
@@ -274,7 +405,7 @@ function updateGuessButton() {
   if (!game_state.game_running) {
     return;
   }
-  document.getElementById("btn-guess").textContent = `Guess (${game_state.guessed_ids.length + 1}/${game_state.max_guesses})`;
+  document.getElementById("btn-guess").textContent = `Guess (${usedGuesses() + 1}/${game_state.max_guesses})`;
 }
 
 function getComarcaName(comarcaId, svgElement) {
