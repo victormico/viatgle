@@ -1,14 +1,9 @@
-let startComarca = ""; // Example start
-let endComarca = ""; // Example end
-let guessedPath = [];
-let guesses = 1;
-let incorrectGuesses = 0;
-let shortestPaths = []; // Store the computed shortest path
 let adjacencyMap = {}; // Store the adjacency map for the comarques
-let maxGuesses = 0;
 let game_state = {}; // Initialize game state
 
 const maxIncorrectGuesses = 5;
+const STORAGE_KEY = "viatgle-progress";
+const GAME_URL = "https://victormico.github.io/viatgle";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Load the map
@@ -30,44 +25,45 @@ async function initializeGame() {
 
   // Calculate the difference in days (rounded to absorb DST shifts)
   const diffDays = Math.round((today - startDate) / (1000 * 60 * 60 * 24));
-  
+
   // Load the precomputed pairs
   const responsePairs = await fetch("pairs.json");
   const pairs = await responsePairs.json();
-  
+
   // Use the difference as an index to select the pair
   const pairIndex = diffDays % Object.keys(pairs).length;
   const pair = pairs[pairIndex];
-  
-  startComarca = pair.start;
-  endComarca = pair.end;
-  
+
   // Load the all_shortest_paths.json
   const responsePaths = await fetch("all_shortest_paths.json");
   const allShortestPaths = await responsePaths.json();
-  
-  shortestPaths = allShortestPaths[startComarca][endComarca];
-  
+
+  const shortestPaths = allShortestPaths[pair.start][pair.end];
+
   // Remove start and end comarca from each shortest path
   for (let path of shortestPaths) {
-    if (path[0] === startComarca) {
+    if (path[0] === pair.start) {
       path.shift(); // Remove start comarca
     }
-    if (path[path.length - 1] === endComarca) {
+    if (path[path.length - 1] === pair.end) {
       path.pop(); // Remove end comarca
     }
   }
+
   const response = await fetch("comarques_limitrofes.json");
   adjacencyMap = await response.json();
-  
+
   // Initialize game state
   game_state = {
-    start: startComarca,
-    end: endComarca,
+    day: diffDays,
+    start: pair.start,
+    end: pair.end,
     shortests_paths: shortestPaths,
-    remaining_guesses: shortestPaths[0].length + maxIncorrectGuesses,
-    guesses: [],
+    shortest_path_length: shortestPaths[0].length,
+    max_guesses: shortestPaths[0].length + maxIncorrectGuesses,
+    guessed_ids: [],
     guesses_status: [],
+    incorrect_guesses: 0,
     game_running: true,
     guesses_icons: {
       optimal: "✅",
@@ -76,30 +72,57 @@ async function initializeGame() {
       bad: "🟥"
     }
   };
-  
-  // Print the first shortest path
-  console.log("First shortest paths:", shortestPaths[0]);
-  
-  maxGuesses = shortestPaths[0].length + maxIncorrectGuesses;
-  document.getElementById("max-guesses").textContent = `${maxGuesses}`;
-  
+
   const svgElement = document.querySelector("svg");
   svgElement.querySelectorAll("g").forEach(group => {
-    if (group.id === startComarca) {
+    if (group.id === game_state.start) {
       setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--start-color'));
       group.style.display = "inline";
-    } else if (group.id === endComarca) {
+    } else if (group.id === game_state.end) {
       setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--end-color'));
       group.style.display = "inline";
     }
   });
-  
+
   populateDropdown(svgElement);
-  document.getElementById("start-comarca").textContent = getComarcaName(startComarca, svgElement);
-  document.getElementById("end-comarca").textContent = getComarcaName(endComarca, svgElement);
-  
-  guessedPath = [];
-  incorrectGuesses = 0;
+  document.getElementById("start-comarca").textContent = getComarcaName(game_state.start, svgElement);
+  document.getElementById("end-comarca").textContent = getComarcaName(game_state.end, svgElement);
+
+  restoreProgress(svgElement);
+  updateGuessButton();
+}
+
+function saveProgress() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      day: game_state.day,
+      guessed_ids: game_state.guessed_ids
+    }));
+  } catch (err) {
+    // Storage unavailable (private mode, quota); the game still works, it
+    // just won't survive a reload
+  }
+}
+
+function restoreProgress(svgElement) {
+  let saved = null;
+  try {
+    saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  } catch (err) {
+    return;
+  }
+  if (!saved || saved.day !== game_state.day || !Array.isArray(saved.guessed_ids)) {
+    return;
+  }
+  for (const comarcaId of saved.guessed_ids) {
+    if (!game_state.game_running || !/^[a-z_]+$/.test(comarcaId)) {
+      break;
+    }
+    const comarca = svgElement.querySelector(`g#${comarcaId}`);
+    if (comarca) {
+      applyGuess(comarca, false);
+    }
+  }
 }
 
 function populateDropdown(svgElement) {
@@ -161,7 +184,8 @@ document.getElementById("btn-guess").addEventListener("click", () => {
       return;
   }
 
-  const guess = document.getElementById("comarques-input").value.trim();
+  const input = document.getElementById("comarques-input");
+  const guess = input.value.trim();
   const svgElement = document.querySelector("svg");
   const comarca = Array.from(svgElement.querySelectorAll("g")).find(
       g => g.getAttribute("data-comarca").toLowerCase() === guess.toLowerCase()
@@ -172,35 +196,42 @@ document.getElementById("btn-guess").addEventListener("click", () => {
       return;
   }
 
-  if (guessedPath.includes(comarca.id)) {
+  if (game_state.guessed_ids.includes(comarca.id)) {
       showFeedback("Already guessed!", "orange");
       return;
   }
 
+  showFeedback("", "");
+  input.value = "";
+  document.getElementById("autocomplete-list").innerHTML = "";
+  applyGuess(comarca);
+});
+
+function applyGuess(comarca, save = true) {
   // Reveal comarca and apply color based on correctness
   comarca.style.display = "inline";
   const guessIcon = checkGuess(comarca.id);
-  guessedPath.push(comarca.id);
-  guesses++;
-  updateGuessHistory(guess, guessIcon); // Update guess history
+  game_state.guessed_ids.push(comarca.id);
+  game_state.guesses_status.push(guessIcon);
+  updateGuessHistory(comarca.getAttribute("data-comarca"), guessIcon);
+  if (save) {
+    saveProgress();
+  }
 
   // Handle incorrect guess
   if (guessIcon === game_state.guesses_icons.bad) {
-      incorrectGuesses++;
-      if (incorrectGuesses >= maxIncorrectGuesses) {
+      game_state.incorrect_guesses++;
+      if (game_state.incorrect_guesses >= maxIncorrectGuesses) {
           endGame("You lost! Try again tomorrow.", "red");
           return;
       }
-  } else if (shortestPaths.some(path => path.length === 0)) {
+  } else if (game_state.shortests_paths.some(path => path.length === 0)) {
     endGame("You won! Congratulations!", "green");
     return;
   }
 
   updateGuessButton();
-
-  // Clear the input box
-  document.getElementById("comarques-input").value = "";
-});
+}
 
 function showFeedback(message, color) {
   const feedback = document.getElementById("feedback");
@@ -213,10 +244,36 @@ function endGame(message, color) {
   showFeedback(message, color);
   document.getElementById("comarques-input").disabled = true;
   document.getElementById("btn-guess").disabled = true;
+  document.getElementById("btn-share").hidden = false;
 }
 
+function buildShareText() {
+  const gameNumber = game_state.day + 1;
+  const won = game_state.shortests_paths.some(path => path.length === 0);
+  const extraGuesses = game_state.guessed_ids.length - game_state.shortest_path_length;
+  const score = won ? `+${extraGuesses}` : "X";
+  return `#viatgle #${gameNumber} ${score}\n${game_state.guesses_status.join("")}\n${GAME_URL}`;
+}
+
+document.getElementById("btn-share").addEventListener("click", async () => {
+  const text = buildShareText();
+  try {
+    if (navigator.share) {
+      await navigator.share({ text });
+    } else {
+      await navigator.clipboard.writeText(text);
+      showFeedback("Result copied to clipboard!", "green");
+    }
+  } catch (err) {
+    // Share sheet dismissed or clipboard unavailable; nothing to do
+  }
+});
+
 function updateGuessButton() {
-  document.getElementById("btn-guess").textContent = `Guess (${guesses}/${maxGuesses})`;
+  if (!game_state.game_running) {
+    return;
+  }
+  document.getElementById("btn-guess").textContent = `Guess (${game_state.guessed_ids.length + 1}/${game_state.max_guesses})`;
 }
 
 function getComarcaName(comarcaId, svgElement) {
