@@ -19,7 +19,14 @@ const TRANSLATIONS = {
     hint_initials: "Inicials de les comarques del camí",
     zoom_in: "Amplia",
     zoom_out: "Redueix",
-    zoom_reset: "Restableix el zoom"
+    zoom_reset: "Restableix el zoom",
+    stats_title: "Estadístiques",
+    stat_played: "Jugades",
+    stat_win_pct: "% victòries",
+    stat_streak: "Ratxa",
+    stat_max_streak: "Ratxa màx.",
+    dist_title: "Tirades de més",
+    next_game: "Següent viatgle en"
   },
   es: {
     title: "Hoy me gustaría ir de {start} a {end}.",
@@ -38,7 +45,14 @@ const TRANSLATIONS = {
     hint_initials: "Iniciales de las comarcas del camino",
     zoom_in: "Ampliar",
     zoom_out: "Reducir",
-    zoom_reset: "Restablecer el zoom"
+    zoom_reset: "Restablecer el zoom",
+    stats_title: "Estadísticas",
+    stat_played: "Jugadas",
+    stat_win_pct: "% victorias",
+    stat_streak: "Racha",
+    stat_max_streak: "Racha máx.",
+    dist_title: "Intentos de más",
+    next_game: "Siguiente viatgle en"
   },
   en: {
     title: "Today I'd like to go from {start} to {end}.",
@@ -57,7 +71,14 @@ const TRANSLATIONS = {
     hint_initials: "Path initials shown",
     zoom_in: "Zoom in",
     zoom_out: "Zoom out",
-    zoom_reset: "Reset zoom"
+    zoom_reset: "Reset zoom",
+    stats_title: "Statistics",
+    stat_played: "Played",
+    stat_win_pct: "Win %",
+    stat_streak: "Streak",
+    stat_max_streak: "Max streak",
+    dist_title: "Extra guesses",
+    next_game: "Next viatgle in"
   }
 };
 

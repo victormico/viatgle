@@ -26,18 +26,40 @@
       <input id="comarques-input" class="form-control input-lg dropdown-toggle" placeholder="Enter a comarca..." aria-describedby="btn-guess" data-bs-toggle="dropdown">
       <button id="btn-guess" class="btn btn-outline-success btn-lg guess-button" type="button">Guess</button>
       <button id="btn-hint" class="hint-button" type="button" title="Use a hint (costs one guess)">💡 (3)</button>
+      <button id="btn-stats" class="stats-button" type="button">📊</button>
 
 
     </div>
 
     <!-- Feedback -->
     <p id="feedback" class="feedback-message"></p>
-    <!-- Share result (shown when the game ends) -->
-    <button id="btn-share" class="share-button" type="button" hidden>📋 Share result</button>
     <!-- Guess History -->
     <div id="guess-history" class="guess-history"></div> 
     <!-- Tooltip -->
-    <div id='tooltip'></div>   
+    <div id='tooltip'></div>
+
+    <!-- End-game / stats modal -->
+    <div id="modal-overlay" class="modal-overlay" hidden>
+      <div class="modal" role="dialog" aria-modal="true">
+        <button id="modal-close" class="modal-close" type="button" aria-label="×">×</button>
+        <h2 id="modal-title"></h2>
+        <div class="stats-grid">
+          <div class="stat"><span class="stat-value" id="stat-played"></span><span class="stat-label" id="label-played"></span></div>
+          <div class="stat"><span class="stat-value" id="stat-winpct"></span><span class="stat-label" id="label-winpct"></span></div>
+          <div class="stat"><span class="stat-value" id="stat-streak"></span><span class="stat-label" id="label-streak"></span></div>
+          <div class="stat"><span class="stat-value" id="stat-maxstreak"></span><span class="stat-label" id="label-maxstreak"></span></div>
+        </div>
+        <h3 id="dist-title" class="dist-title"></h3>
+        <div id="distribution" class="distribution"></div>
+        <div class="modal-footer">
+          <div class="countdown">
+            <span class="countdown-label" id="countdown-label"></span>
+            <span class="countdown-value" id="countdown-value"></span>
+          </div>
+          <button id="btn-share" class="share-button" type="button" hidden>📋 Share result</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="i18n.js"></script>
