@@ -147,33 +147,74 @@ function restoreProgress(svgElement) {
   }
 }
 
+// Accent-insensitive comparison: "emporda" must match "Empordà"
+function normalizeText(text) {
+  return text.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+const MAX_SUGGESTIONS = 8;
+
 function populateDropdown(svgElement) {
   const dropdown = document.getElementById("autocomplete-list");
+  const input = document.getElementById("comarques-input");
   const comarques = Array.from(svgElement.querySelectorAll("g")).map(group => ({
     id: group.id,
     name: group.getAttribute("data-comarca"),
+    normalized: normalizeText(group.getAttribute("data-comarca")),
   }));
+  let activeIndex = -1;
 
-  const input = document.getElementById("comarques-input");
-  input.addEventListener("input", () => {
-    const query = input.value.trim().toLowerCase();
+  function renderSuggestions() {
+    const query = normalizeText(input.value.trim());
+    activeIndex = -1;
     if (!query) {
       dropdown.innerHTML = "";
       return;
     }
-    const suggestions = comarques
-      .filter(c => c.name.toLowerCase().includes(query))
+    dropdown.innerHTML = comarques
+      .filter(c => c.normalized.includes(query))
+      .slice(0, MAX_SUGGESTIONS)
       .map(c => `<button type="button" class="dropdown-item" data-id="${c.id}">${c.name}</button>`)
       .join("");
-    dropdown.innerHTML = suggestions;
+  }
 
-    // Handle suggestion click
-    dropdown.querySelectorAll(".dropdown-item").forEach(item => {
-      item.addEventListener("click", () => {
-        input.value = item.textContent;
+  input.addEventListener("input", renderSuggestions);
+
+  // One delegated listener instead of re-binding on every keystroke
+  dropdown.addEventListener("click", (e) => {
+    const item = e.target.closest(".dropdown-item");
+    if (item) {
+      input.value = item.textContent;
+      dropdown.innerHTML = "";
+      input.focus();
+    }
+  });
+
+  input.addEventListener("keydown", (e) => {
+    const items = [...dropdown.querySelectorAll(".dropdown-item")];
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      if (!items.length) {
+        return;
+      }
+      e.preventDefault();
+      activeIndex = e.key === "ArrowDown"
+        ? (activeIndex + 1) % items.length
+        : (activeIndex - 1 + items.length) % items.length;
+      items.forEach((item, i) => item.classList.toggle("active", i === activeIndex));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      // A highlighted (or single) suggestion autocompletes, then submits
+      const pick = activeIndex >= 0 ? items[activeIndex] : items.length === 1 ? items[0] : null;
+      if (pick) {
+        input.value = pick.textContent;
         dropdown.innerHTML = "";
-      });
-    });
+        activeIndex = -1;
+      }
+      submitGuess();
+    } else if (e.key === "Escape") {
+      dropdown.innerHTML = "";
+      activeIndex = -1;
+    }
   });
 }
 
@@ -204,16 +245,19 @@ mapa.addEventListener("mousemove", (e) => {
 });
 
 // Guess handling logic update
-document.getElementById("btn-guess").addEventListener("click", () => {
+function submitGuess() {
   if (!game_state.game_running) {
       return;
   }
 
   const input = document.getElementById("comarques-input");
   const guess = input.value.trim();
+  if (!guess) {
+      return;
+  }
   const svgElement = document.querySelector("svg");
   const comarca = Array.from(svgElement.querySelectorAll("g")).find(
-      g => g.getAttribute("data-comarca").toLowerCase() === guess.toLowerCase()
+      g => normalizeText(g.getAttribute("data-comarca")) === normalizeText(guess)
   );
 
   if (!comarca) {
@@ -230,7 +274,9 @@ document.getElementById("btn-guess").addEventListener("click", () => {
   input.value = "";
   document.getElementById("autocomplete-list").innerHTML = "";
   applyGuess(comarca);
-});
+}
+
+document.getElementById("btn-guess").addEventListener("click", submitGuess);
 
 function applyGuess(comarca, save = true) {
   // Reveal comarca and apply color based on correctness
@@ -580,6 +626,7 @@ function openStatsModal() {
   renderDistribution(stats);
 
   document.getElementById("btn-share").hidden = game_state.game_running;
+  document.getElementById("modal-feedback").textContent = "";
   startCountdown();
   document.getElementById("modal-overlay").hidden = false;
 }
@@ -660,6 +707,8 @@ document.getElementById("btn-share").addEventListener("click", async () => {
       await navigator.share({ text });
     } else {
       await navigator.clipboard.writeText(text);
+      // The modal overlay covers the feedback line, so confirm inside it
+      document.getElementById("modal-feedback").textContent = t("copied");
       showFeedback(t("copied"), "green");
     }
   } catch (err) {

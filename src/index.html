@@ -21,14 +21,14 @@
     </div>
 
     <!-- Input for guesses -->
-    <div class="input-group mb-3 ui-padding autocomplete-drop-down dropup dropdown">
+    <div class="guess-bar">
       <div class="dropdown-menu" id="autocomplete-list"></div>
-      <input id="comarques-input" class="form-control input-lg dropdown-toggle" placeholder="Enter a comarca..." aria-describedby="btn-guess" data-bs-toggle="dropdown">
-      <button id="btn-guess" class="btn btn-outline-success btn-lg guess-button" type="button">Guess</button>
+      <input id="comarques-input" placeholder="Enter a comarca..." autocomplete="off">
+      <button id="btn-guess" class="guess-button" type="button">Guess</button>
+    </div>
+    <div class="toolbar">
       <button id="btn-hint" class="hint-button" type="button" title="Use a hint (costs one guess)">💡 (3)</button>
       <button id="btn-stats" class="stats-button" type="button">📊</button>
-
-
     </div>
 
     <!-- Feedback -->
@@ -58,6 +58,7 @@
           </div>
           <button id="btn-share" class="share-button" type="button" hidden>📋 Share result</button>
         </div>
+        <p id="modal-feedback" class="modal-feedback"></p>
       </div>
     </div>
   </div>
