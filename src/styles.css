@@ -42,6 +42,12 @@ h1 {
   margin-bottom: 10px;
 }
 
+/* Comarques start hidden so the full map is never visible while loading;
+   the game reveals them explicitly (issue #22) */
+#map-container svg g {
+  display: none;
+}
+
 input {
   width: 60%;
   padding: 10px;

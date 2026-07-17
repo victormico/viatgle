@@ -22,13 +22,14 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function initializeGame() {
-  // Set the start date
-  const startDate = new Date('2024-12-16');
-  const currentDate = new Date();
-  
-  // Calculate the difference in days
-  const diffTime = Math.abs(currentDate - startDate);
-  const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+  // Set the start date (local midnight, so the puzzle changes at the
+  // player's local midnight regardless of timezone)
+  const startDate = new Date(2024, 11, 16);
+  const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // Calculate the difference in days (rounded to absorb DST shifts)
+  const diffDays = Math.round((today - startDate) / (1000 * 60 * 60 * 24));
   
   // Load the precomputed pairs
   const responsePairs = await fetch("pairs.json");
@@ -86,10 +87,10 @@ async function initializeGame() {
   svgElement.querySelectorAll("g").forEach(group => {
     if (group.id === startComarca) {
       setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--start-color'));
+      group.style.display = "inline";
     } else if (group.id === endComarca) {
       setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--end-color'));
-    } else {
-      group.style.display = "none";
+      group.style.display = "inline";
     }
   });
   
@@ -110,7 +111,11 @@ function populateDropdown(svgElement) {
 
   const input = document.getElementById("comarques-input");
   input.addEventListener("input", () => {
-    const query = input.value.toLowerCase();
+    const query = input.value.trim().toLowerCase();
+    if (!query) {
+      dropdown.innerHTML = "";
+      return;
+    }
     const suggestions = comarques
       .filter(c => c.name.toLowerCase().includes(query))
       .map(c => `<button type="button" class="dropdown-item" data-id="${c.id}">${c.name}</button>`)
@@ -127,34 +132,35 @@ function populateDropdown(svgElement) {
   });
 }
 
-// Tooltip handling logic by BinariEM 
-var mapa = document.getElementById("map-container")
-mapa.addEventListener('mouseover', function (e) {
-		
-  var dataComarca = e.target.getAttribute("data-comarca"); // Guardem el nom de la classe en una variable
+// Tooltip handling logic by BinariEM
+const mapa = document.getElementById("map-container");
+const tooltip = document.getElementById("tooltip");
+
+mapa.addEventListener("mouseover", (e) => {
+  const dataComarca = e.target.getAttribute("data-comarca");
   if (dataComarca) {
-    document.getElementById('tooltip').style.display="block"; // Mostrem la capa
-    
-    var contenidor = document.getElementById("tooltip"); // Agafem la capa contenidor
-    contenidor.innerHTML = "<span class='triangle'></span>" + "<div>"+ dataComarca+"</div>"; // Afegim la informació
-    
-    // Amagar quan mouseout
-    document.addEventListener('mouseout', function (f) {
-      document.getElementById('tooltip').style.display="none"; // Amagem la capa
-    });
-  
-    // Seguiment del cursor
-    var tooltip = document.getElementById('tooltip');
-    window.onmousemove = function(s) {
-      var x = s.pageX, y = s.pageY;
-      tooltip.style.left = (x + 20) + 'px';
-      tooltip.style.top = (y - 20) + 'px';
-    };
+    tooltip.innerHTML = "<span class='triangle'></span>" + "<div>" + dataComarca + "</div>";
+    tooltip.style.display = "block";
+  } else {
+    tooltip.style.display = "none";
   }
+});
+
+mapa.addEventListener("mouseleave", () => {
+  tooltip.style.display = "none";
+});
+
+mapa.addEventListener("mousemove", (e) => {
+  tooltip.style.left = (e.pageX + 20) + "px";
+  tooltip.style.top = (e.pageY - 20) + "px";
 });
 
 // Guess handling logic update
 document.getElementById("btn-guess").addEventListener("click", () => {
+  if (!game_state.game_running) {
+      return;
+  }
+
   const guess = document.getElementById("comarques-input").value.trim();
   const svgElement = document.querySelector("svg");
   const comarca = Array.from(svgElement.querySelectorAll("g")).find(
@@ -182,11 +188,11 @@ document.getElementById("btn-guess").addEventListener("click", () => {
   if (guessIcon === game_state.guesses_icons.bad) {
       incorrectGuesses++;
       if (incorrectGuesses >= maxIncorrectGuesses) {
-          showFeedback("You lost! Try again tomorrow.", "red");
+          endGame("You lost! Try again tomorrow.", "red");
           return;
       }
   } else if (shortestPaths.some(path => path.length === 0)) {
-    showFeedback("You won! Congratulations!", "green");
+    endGame("You won! Congratulations!", "green");
     return;
   }
 
@@ -200,6 +206,13 @@ function showFeedback(message, color) {
   const feedback = document.getElementById("feedback");
   feedback.textContent = message;
   feedback.style.color = color;
+}
+
+function endGame(message, color) {
+  game_state.game_running = false;
+  showFeedback(message, color);
+  document.getElementById("comarques-input").disabled = true;
+  document.getElementById("btn-guess").disabled = true;
 }
 
 function updateGuessButton() {
