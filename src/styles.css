@@ -45,12 +45,14 @@ h1 {
 }
 
 #map-container {
-  border: 1px solid #ddd;
+  border: 1px solid #d5dde3;
+  border-radius: 8px;
   width: auto;
   height: auto;
   overflow: hidden;
   position: relative;
-  background-color: white;
+  /* Sea tone behind the ghosted landmass */
+  background-color: #e9f0f5;
   margin-bottom: 10px;
   /* Let the pan/pinch pointer handlers own all touch gestures on the map */
   touch-action: none;
@@ -81,10 +83,57 @@ h1 {
   background-color: #f0f0f0;
 }
 
-/* Comarques start hidden so the full map is never visible while loading;
-   the game reveals them explicitly (issue #22) */
-#map-container svg g {
-  display: none;
+/* The SVG stays invisible until the fog-of-war ghost styling has been
+   applied, so the fully-colored map never flashes (issue #22) */
+#map-container svg {
+  visibility: hidden;
+}
+
+#map-container.ready svg {
+  visibility: visible;
+}
+
+/* Fade/pop when a comarca is revealed by a guess */
+@keyframes comarca-pop {
+  from {
+    opacity: 0;
+  }
+}
+
+g.revealed {
+  animation: comarca-pop 0.5s ease;
+}
+
+/* Pulsing halo behind the start and end comarques */
+.pin-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pin-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes pin-pulse {
+  0% {
+    transform: scale(0.4);
+    opacity: 0.8;
+  }
+  70% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* The travel route drawn when the game ends */
+.route-line {
+  fill: none;
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  pointer-events: none;
 }
 
 input {
