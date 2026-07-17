@@ -136,16 +136,87 @@ g.revealed {
   pointer-events: none;
 }
 
-input {
-  width: 60%;
-  padding: 10px;
-  margin-top: 10px;
-  margin-bottom: 10px;
+/* Floating pill guess bar */
+.guess-bar {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  margin: 0 10px;
+}
+
+.guess-bar input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px 18px;
+  border: 1px solid #ccc;
+  border-radius: 24px;
+  font-size: 1rem;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.guess-bar input:focus {
+  outline: 2px solid var(--end-color);
+  border-color: transparent;
 }
 
 button.guess-button {
-  margin-left: 10px;
-  padding: 10px 10px;
+  padding: 12px 18px;
+  border: 1px solid #2e7d32;
+  border-radius: 24px;
+  background-color: #2e7d32;
+  color: white;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+button.guess-button:disabled {
+  background-color: #aaa;
+  border-color: #aaa;
+  cursor: default;
+}
+
+/* Suggestions float above the guess bar */
+.dropdown-menu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+  text-align: left;
+}
+
+.dropdown-menu:empty {
+  display: none;
+}
+
+.dropdown-item {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dropdown-item:hover,
+.dropdown-item.active {
+  background-color: #e8f0e9;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .feedback-message {
@@ -154,8 +225,10 @@ button.guess-button {
 }
 
 button.hint-button {
-  margin-left: 10px;
-  padding: 10px 10px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: white;
   cursor: pointer;
 }
 
@@ -182,9 +255,18 @@ button.share-button {
 }
 
 button.stats-button {
-  margin-left: 10px;
-  padding: 10px 10px;
+  padding: 10px 14px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  background-color: white;
   cursor: pointer;
+}
+
+.modal-feedback {
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #2e7d32;
+  min-height: 1em;
 }
 
 /* End-game / stats modal */
