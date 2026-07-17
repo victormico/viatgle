@@ -12,9 +12,21 @@ body {
 
 .game-container {
   max-width: 450px;
-  margin: 20px auto;
+  margin: 0 auto 20px;
+  padding-top: 44px;
   text-align: center;
-  
+  position: relative;
+}
+
+.lang-select {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  font-size: 0.85rem;
 }
 
 #start-comarca {

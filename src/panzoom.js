@@ -116,9 +116,9 @@ function initPanZoom(svgElement, container) {
   const controls = document.createElement("div");
   controls.className = "zoom-controls";
   [
-    ["+", "Zoom in", () => zoomAtCenter(1 / WHEEL_STEP ** 2)],
-    ["−", "Zoom out", () => zoomAtCenter(WHEEL_STEP ** 2)],
-    ["⛶", "Reset zoom", reset],
+    ["+", t("zoom_in"), () => zoomAtCenter(1 / WHEEL_STEP ** 2)],
+    ["−", t("zoom_out"), () => zoomAtCenter(WHEEL_STEP ** 2)],
+    ["⛶", t("zoom_reset"), reset],
   ].forEach(([label, title, onClick]) => {
     const button = document.createElement("button");
     button.type = "button";

@@ -8,7 +8,12 @@
 </head>
 <body>
   <div class="game-container">
-    <h1 id="game-title">Today I'd like to go from <span id="start-comarca"></span> to <span id="end-comarca"></span>.</h1>
+    <select id="lang-select" class="lang-select" aria-label="Idioma / Language">
+      <option value="ca">Català</option>
+      <option value="es">Castellano</option>
+      <option value="en">English</option>
+    </select>
+    <h1 id="game-title"></h1>
     
     <!-- Map -->
     <div id="map-container" class="map-container">
@@ -35,6 +40,7 @@
     <div id='tooltip'></div>   
   </div>
 
+  <script src="i18n.js"></script>
   <script src="panzoom.js"></script>
   <script src="script.js"></script>
 </body>

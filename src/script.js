@@ -6,6 +6,7 @@ const STORAGE_KEY = "viatgle-progress";
 const GAME_URL = "https://victormico.github.io/viatgle";
 
 document.addEventListener("DOMContentLoaded", () => {
+  applyTranslations();
   // Load the map
   fetch("master.svg")
     .then(response => response.text())
@@ -88,8 +89,7 @@ async function initializeGame() {
 
   populateDropdown(svgElement);
   initPanZoom(svgElement, document.getElementById("map-container"));
-  document.getElementById("start-comarca").textContent = getComarcaName(game_state.start, svgElement);
-  document.getElementById("end-comarca").textContent = getComarcaName(game_state.end, svgElement);
+  setGameTitle(getComarcaName(game_state.start, svgElement), getComarcaName(game_state.end, svgElement));
 
   restoreProgress(svgElement);
   updateGuessButton();
@@ -209,12 +209,12 @@ document.getElementById("btn-guess").addEventListener("click", () => {
   );
 
   if (!comarca) {
-      showFeedback("Invalid comarca!", "red");
+      showFeedback(t("invalid_comarca"), "red");
       return;
   }
 
   if (game_state.guessed_ids.includes(comarca.id)) {
-      showFeedback("Already guessed!", "orange");
+      showFeedback(t("already_guessed"), "orange");
       return;
   }
 
@@ -241,11 +241,11 @@ function applyGuess(comarca, save = true) {
   if (guessIcon === game_state.guesses_icons.bad) {
       game_state.incorrect_guesses++;
       if (game_state.incorrect_guesses >= maxIncorrectGuesses) {
-          endGame("You lost! Try again tomorrow.", "red");
+          endGame(t("lost"), "red");
           return;
       }
   } else if (game_state.shortests_paths.some(path => path.length === 0)) {
-    endGame("You won! Congratulations!", "green");
+    endGame(t("won"), "green");
     return;
   }
 
@@ -268,17 +268,17 @@ function applyHint(save = true) {
   let description;
   if (game_state.hints_used === 1) {
     outlineComarca(svgElement.querySelector(`g#${game_state.shortests_paths[0][0]}`));
-    description = "Next comarca outlined";
+    description = t("hint_next_outline");
   } else if (game_state.hints_used === 2) {
     remainingPathIds().forEach(id => outlineComarca(svgElement.querySelector(`g#${id}`)));
-    description = "All path comarques outlined";
+    description = t("hint_all_outlines");
   } else {
     remainingPathIds().forEach(id => {
       const group = svgElement.querySelector(`g#${id}`);
       outlineComarca(group);
       addInitials(group);
     });
-    description = "Path initials shown";
+    description = t("hint_initials");
   }
 
   game_state.guesses_status.push("💡");
@@ -351,7 +351,7 @@ function usedGuesses() {
 
 function checkOutOfGuesses() {
   if (game_state.game_running && usedGuesses() >= game_state.max_guesses) {
-    endGame("Out of guesses! Try again tomorrow.", "red");
+    endGame(t("out_of_guesses"), "red");
   }
 }
 
@@ -362,6 +362,32 @@ function updateHintButton() {
   const hintsLeft = maxHints - game_state.hints_used;
   button.textContent = `💡 (${hintsLeft})`;
   button.disabled = hintsLeft === 0 || !game_state.game_running;
+}
+
+function applyTranslations() {
+  document.documentElement.lang = currentLang;
+  document.getElementById("comarques-input").placeholder = t("input_placeholder");
+  document.getElementById("btn-hint").title = t("hint_button_title");
+  document.getElementById("btn-share").textContent = t("share_button");
+
+  const langSelect = document.getElementById("lang-select");
+  langSelect.value = currentLang;
+  langSelect.addEventListener("change", () => {
+    localStorage.setItem(LANG_KEY, langSelect.value);
+    location.reload(); // game progress survives via viatgle-progress
+  });
+}
+
+// The title keeps the colored start/end spans, so build it from the
+// translated template with placeholders swapped for the spans.
+// {de_start} (Catalan) resolves the elided particle first: d'Osona / de Garrotxa.
+function setGameTitle(startName, endName) {
+  document.getElementById("game-title").innerHTML = t("title")
+    .replace("{de_start}", caDeParticle(startName) + "{start}")
+    .replace("{start}", '<span id="start-comarca"></span>')
+    .replace("{end}", '<span id="end-comarca"></span>');
+  document.getElementById("start-comarca").textContent = startName;
+  document.getElementById("end-comarca").textContent = endName;
 }
 
 function showFeedback(message, color) {
@@ -394,7 +420,7 @@ document.getElementById("btn-share").addEventListener("click", async () => {
       await navigator.share({ text });
     } else {
       await navigator.clipboard.writeText(text);
-      showFeedback("Result copied to clipboard!", "green");
+      showFeedback(t("copied"), "green");
     }
   } catch (err) {
     // Share sheet dismissed or clipboard unavailable; nothing to do
@@ -405,7 +431,7 @@ function updateGuessButton() {
   if (!game_state.game_running) {
     return;
   }
-  document.getElementById("btn-guess").textContent = `Guess (${usedGuesses() + 1}/${game_state.max_guesses})`;
+  document.getElementById("btn-guess").textContent = t("guess_button", { n: usedGuesses() + 1, max: game_state.max_guesses });
 }
 
 function getComarcaName(comarcaId, svgElement) {
