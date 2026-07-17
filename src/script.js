@@ -61,6 +61,7 @@ async function initializeGame() {
     start: pair.start,
     end: pair.end,
     shortests_paths: shortestPaths,
+    original_paths: shortestPaths.map(path => [...path]),
     shortest_path_length: shortestPaths[0].length,
     max_guesses: shortestPaths[0].length + maxIncorrectGuesses,
     guessed_ids: [],
@@ -81,12 +82,15 @@ async function initializeGame() {
   svgElement.querySelectorAll("g").forEach(group => {
     if (group.id === game_state.start) {
       setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--start-color'));
-      group.style.display = "inline";
+      addPinHalo(group, "--start-color");
     } else if (group.id === game_state.end) {
       setSvgFill(group, getComputedStyle(document.documentElement).getPropertyValue('--end-color'));
-      group.style.display = "inline";
+      addPinHalo(group, "--end-color");
+    } else {
+      ghostComarca(group);
     }
   });
+  document.getElementById("map-container").classList.add("ready");
 
   populateDropdown(svgElement);
   initPanZoom(svgElement, document.getElementById("map-container"));
@@ -179,7 +183,10 @@ const tooltip = document.getElementById("tooltip");
 
 mapa.addEventListener("mouseover", (e) => {
   const dataComarca = e.target.getAttribute("data-comarca");
-  if (dataComarca) {
+  const group = e.target.closest ? e.target.closest("g") : null;
+  // Ghosted (unguessed) comarques keep their names secret: hovering the
+  // fog of war must not become a free hint
+  if (dataComarca && group && !group.classList.contains("ghost")) {
     tooltip.innerHTML = "<span class='triangle'></span>" + "<div>" + dataComarca + "</div>";
     tooltip.style.display = "block";
   } else {
@@ -228,7 +235,8 @@ document.getElementById("btn-guess").addEventListener("click", () => {
 function applyGuess(comarca, save = true) {
   // Reveal comarca and apply color based on correctness
   clearHintMarks(comarca);
-  comarca.style.display = "inline";
+  unghostComarca(comarca);
+  comarca.classList.add("revealed");
   const guessIcon = checkGuess(comarca.id);
   game_state.guessed_ids.push(comarca.id);
   game_state.guesses_status.push(guessIcon);
@@ -294,6 +302,89 @@ function applyHint(save = true) {
   updateGuessButton();
 }
 
+// ---- Fog of war: unguessed comarques show as pale ghosts ----
+
+const GHOST_FILL = "#f6f3eb";
+const GHOST_STROKE = "#d8d2c4";
+
+function ghostComarca(group) {
+  comarcaShapes(group).forEach(shape => {
+    if (!shape.dataset.ghost) {
+      shape.dataset.ghost = "true";
+      shape.dataset.ghostPrevFill = shape.style.fill;
+      shape.dataset.ghostPrevStroke = shape.style.stroke;
+      shape.style.fill = GHOST_FILL;
+      shape.style.stroke = GHOST_STROKE;
+    }
+  });
+  group.classList.add("ghost");
+}
+
+function unghostComarca(group) {
+  comarcaShapes(group).forEach(shape => {
+    if (shape.dataset.ghost) {
+      shape.style.fill = shape.dataset.ghostPrevFill;
+      shape.style.stroke = shape.dataset.ghostPrevStroke;
+      delete shape.dataset.ghost;
+      delete shape.dataset.ghostPrevFill;
+      delete shape.dataset.ghostPrevStroke;
+    }
+  });
+  group.classList.remove("ghost");
+}
+
+function comarcaCenter(group) {
+  const shape = group.querySelector("polygon") || group.querySelector("path");
+  const bbox = shape.getBBox();
+  return { x: bbox.x + bbox.width / 2, y: bbox.y + bbox.height / 2 };
+}
+
+function addPinHalo(group, colorVar) {
+  const center = comarcaCenter(group);
+  const halo = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+  halo.setAttribute("cx", center.x);
+  halo.setAttribute("cy", center.y);
+  halo.setAttribute("r", 12);
+  halo.setAttribute("class", "pin-halo");
+  halo.style.fill = getComputedStyle(document.documentElement).getPropertyValue(colorVar);
+  group.appendChild(halo);
+}
+
+// Draw the completed (or missed) route through the comarca centers
+function drawRouteLine(won, animate) {
+  const svgElement = document.querySelector("svg");
+  const previous = svgElement.querySelector(".route-line");
+  if (previous) {
+    previous.remove();
+  }
+  const path = won
+    ? game_state.original_paths.find(p => p.every(id => game_state.guessed_ids.includes(id))) || game_state.original_paths[0]
+    : game_state.original_paths[0];
+  const points = [game_state.start, ...path, game_state.end]
+    .map(id => {
+      const center = comarcaCenter(svgElement.querySelector(`g#${id}`));
+      return `${center.x},${center.y}`;
+    })
+    .join(" ");
+  const line = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+  line.setAttribute("points", points);
+  line.setAttribute("class", "route-line");
+  line.style.stroke = won ? "#ffffff" : "#777777";
+  line.style.opacity = "0.9";
+  if (!won) {
+    line.style.strokeDasharray = "6 4";
+  }
+  svgElement.appendChild(line);
+  if (animate && won) {
+    const length = line.getTotalLength();
+    line.style.strokeDasharray = length;
+    line.style.strokeDashoffset = length;
+    line.getBoundingClientRect(); // flush so the transition animates
+    line.style.transition = "stroke-dashoffset 1.5s ease";
+    line.style.strokeDashoffset = "0";
+  }
+}
+
 // Every comarca still left on any shortest path (guessed ones are
 // spliced out by checkGuess)
 function remainingPathIds() {
@@ -301,16 +392,18 @@ function remainingPathIds() {
 }
 
 function outlineComarca(group) {
-  const shape = group.querySelector("polygon") || group.querySelector("path");
-  if (shape && !shape.dataset.hintOutlined) {
-    // The original fill lives in the shape's inline style attribute, so
-    // remember it to restore when the comarca is guessed
-    shape.dataset.hintOutlined = "true";
-    shape.dataset.prevFill = shape.style.fill;
-    shape.style.fill = "none";
-    shape.style.strokeDasharray = "3 2";
-  }
-  group.style.display = "inline";
+  comarcaShapes(group).forEach(shape => {
+    if (!shape.dataset.hintOutlined) {
+      // The original fill lives in the shape's inline style attribute, so
+      // remember it to restore when the comarca is guessed
+      shape.dataset.hintOutlined = "true";
+      shape.dataset.prevFill = shape.style.fill;
+      shape.dataset.prevStroke = shape.style.stroke;
+      shape.style.fill = "none";
+      shape.style.stroke = "#555555";
+      shape.style.strokeDasharray = "3 2";
+    }
+  });
 }
 
 function addInitials(group) {
@@ -333,13 +426,16 @@ function addInitials(group) {
 
 // Undo hint styling once the comarca is actually guessed
 function clearHintMarks(comarca) {
-  const shape = comarca.querySelector("polygon") || comarca.querySelector("path");
-  if (shape && shape.dataset.hintOutlined) {
-    shape.style.fill = shape.dataset.prevFill;
-    shape.style.strokeDasharray = "";
-    delete shape.dataset.hintOutlined;
-    delete shape.dataset.prevFill;
-  }
+  comarcaShapes(comarca).forEach(shape => {
+    if (shape.dataset.hintOutlined) {
+      shape.style.fill = shape.dataset.prevFill;
+      shape.style.stroke = shape.dataset.prevStroke;
+      shape.style.strokeDasharray = "";
+      delete shape.dataset.hintOutlined;
+      delete shape.dataset.prevFill;
+      delete shape.dataset.prevStroke;
+    }
+  });
   const initials = comarca.querySelector("text.hint-initials");
   if (initials) {
     initials.remove();
@@ -408,10 +504,12 @@ function endGame(message, color, live = true) {
 
   const won = game_state.shortests_paths.some(path => path.length === 0);
   recordGameEnd(won);
+  drawRouteLine(won, live);
   if (live && won) {
     launchConfetti();
   }
-  setTimeout(openStatsModal, 900);
+  // Let the route finish drawing before the modal covers it
+  setTimeout(openStatsModal, live && won ? 1800 : 900);
 }
 
 // ---- Stats, streaks and the end-game modal ----
@@ -616,12 +714,16 @@ function checkGuess(comarcaId) {
   }
 }
 
+// A comarca group can hold several shapes (e.g. l_alguer and
+// camp_de_turia have exclaves), so always style all of them
+function comarcaShapes(group) {
+  return group.querySelectorAll("polygon, path");
+}
+
 function setSvgFill(element, color) {
-  // Try both polygon and path
-  const shape = element.querySelector("polygon") || element.querySelector("path");
-  if (shape) {
+  comarcaShapes(element).forEach(shape => {
     shape.style.fill = color;
-  }
+  });
 }
 
 function updateGuessHistory(guess, icon) {
