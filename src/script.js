@@ -172,11 +172,15 @@ const MAX_SUGGESTIONS = 8;
 function populateDropdown(svgElement) {
   const dropdown = document.getElementById("autocomplete-list");
   const input = document.getElementById("comarques-input");
-  const comarques = Array.from(svgElement.querySelectorAll("g")).map(group => ({
-    id: group.id,
-    name: group.getAttribute("data-comarca"),
-    normalized: normalizeText(group.getAttribute("data-comarca")),
-  }));
+  // The start and end are already shown on the map, so they must not be
+  // offered as guesses (issue #36)
+  const comarques = Array.from(svgElement.querySelectorAll("g"))
+    .filter(group => group.id !== game_state.start && group.id !== game_state.end)
+    .map(group => ({
+      id: group.id,
+      name: group.getAttribute("data-comarca"),
+      normalized: normalizeText(group.getAttribute("data-comarca")),
+    }));
   let activeIndex = -1;
 
   function renderSuggestions() {
@@ -277,6 +281,13 @@ function submitGuess() {
 
   if (!comarca) {
       showFeedback(t("invalid_comarca"), "red");
+      return;
+  }
+
+  // The start and end are given; typing them manually must not cost a
+  // guess (issue #36)
+  if (comarca.id === game_state.start || comarca.id === game_state.end) {
+      showFeedback(t("endpoint_guess"), "orange");
       return;
   }
 
