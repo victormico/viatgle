@@ -86,7 +86,10 @@ async function initializeGame() {
     return;
   }
   const dayIndex = gameNumber - 1;
-  const pair = pairs[dayIndex % pairCount];
+  // pairs.json is 1-indexed (keys "1".."N"), so a 0 residue — game 1, and
+  // every full wrap — must map to the last key, not a missing "0" (#35)
+  const pairKey = (dayIndex % pairCount) || pairCount;
+  const pair = pairs[pairKey];
 
   // Load the all_shortest_paths.json
   const responsePaths = await fetch("all_shortest_paths.json");
