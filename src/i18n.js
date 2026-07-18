@@ -27,7 +27,9 @@ const TRANSLATIONS = {
     stat_streak: "Ratxa",
     stat_max_streak: "Ratxa màx.",
     dist_title: "Tirades de més",
-    next_game: "Següent viatgle en"
+    next_game: "Següent viatgle en",
+    prev_game: "Joc anterior",
+    next_game_nav: "Joc següent"
   },
   es: {
     title: "Hoy me gustaría ir {from} {to}.",
@@ -54,7 +56,9 @@ const TRANSLATIONS = {
     stat_streak: "Racha",
     stat_max_streak: "Racha máx.",
     dist_title: "Intentos de más",
-    next_game: "Siguiente viatgle en"
+    next_game: "Siguiente viatgle en",
+    prev_game: "Juego anterior",
+    next_game_nav: "Juego siguiente"
   },
   en: {
     title: "Today I'd like to go {from} {to}.",
@@ -81,7 +85,9 @@ const TRANSLATIONS = {
     stat_streak: "Streak",
     stat_max_streak: "Max streak",
     dist_title: "Extra guesses",
-    next_game: "Next viatgle in"
+    next_game: "Next viatgle in",
+    prev_game: "Previous game",
+    next_game_nav: "Next game"
   }
 };
 

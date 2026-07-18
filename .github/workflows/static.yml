@@ -33,6 +33,10 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      # Serve the app for /viatgle/{id} deep links: GitHub Pages returns
+      # 404.html for unmatched paths, so make it a copy of index.html (#35)
+      - name: Create SPA fallback (404.html)
+        run: cp ./src/index.html ./src/404.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:

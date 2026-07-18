@@ -17,7 +17,14 @@
       <option value="en">English</option>
     </select>
     <h1 id="game-title"></h1>
-    
+
+    <!-- Game navigation: browse previous games (#35) -->
+    <div class="game-nav">
+      <button id="btn-prev" class="nav-arrow" type="button" hidden>‹</button>
+      <span id="game-number" class="game-number"></span>
+      <button id="btn-next" class="nav-arrow" type="button" hidden>›</button>
+    </div>
+
     <!-- Map -->
     <div id="map-container" class="map-container">
       <!-- SVG Map will be dynamically loaded here -->

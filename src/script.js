@@ -27,14 +27,23 @@ async function initializeGame() {
 
   // Calculate the difference in days (rounded to absorb DST shifts)
   const diffDays = Math.round((today - startDate) / (1000 * 60 * 60 * 24));
+  const todayNumber = diffDays + 1; // games are 1-indexed for players
 
   // Load the precomputed pairs
   const responsePairs = await fetch("pairs.json");
   const pairs = await responsePairs.json();
+  const pairCount = Object.keys(pairs).length;
 
-  // Use the difference as an index to select the pair
-  const pairIndex = diffDays % Object.keys(pairs).length;
-  const pair = pairs[pairIndex];
+  // A game number may come from the URL (/viatgle/{id}). Clamp to
+  // [1, today] so future games can never be reached (#35).
+  const route = readGameRoute();
+  const gameNumber = route.id || todayNumber;
+  if (gameNumber < 1 || gameNumber > todayNumber) {
+    window.location.replace(gameUrl(todayNumber, todayNumber, route.base));
+    return;
+  }
+  const dayIndex = gameNumber - 1;
+  const pair = pairs[dayIndex % pairCount];
 
   // Load the all_shortest_paths.json
   const responsePaths = await fetch("all_shortest_paths.json");
@@ -57,7 +66,11 @@ async function initializeGame() {
 
   // Initialize game state
   game_state = {
-    day: diffDays,
+    day: dayIndex,
+    number: gameNumber,
+    today_number: todayNumber,
+    is_today: gameNumber === todayNumber,
+    base: route.base,
     start: pair.start,
     end: pair.end,
     shortests_paths: shortestPaths,
@@ -95,11 +108,47 @@ async function initializeGame() {
   populateDropdown(svgElement);
   initPanZoom(svgElement, document.getElementById("map-container"));
   setGameTitle(getComarcaName(game_state.start, svgElement), getComarcaName(game_state.end, svgElement));
+  setupGameNav();
 
   restoreProgress(svgElement);
   updateGuessButton();
   updateHintButton();
   renderJourney();
+}
+
+// ---- Previous-game navigation (#35) ----
+
+// Read a game number from the path (/viatgle/{id}); returns the number
+// (or null) and the base path to build sibling URLs from.
+function readGameRoute() {
+  const match = window.location.pathname.match(/\/(\d+)\/?$/);
+  if (match) {
+    return { id: parseInt(match[1], 10), base: window.location.pathname.slice(0, match.index + 1) };
+  }
+  let base = window.location.pathname;
+  if (!base.endsWith("/")) {
+    base += "/";
+  }
+  return { id: null, base: base };
+}
+
+// Today's game lives at the clean base URL; past games at base + number.
+function gameUrl(number, todayNumber, base) {
+  return number >= todayNumber ? base : base + number;
+}
+
+function setupGameNav() {
+  const prev = document.getElementById("btn-prev");
+  const next = document.getElementById("btn-next");
+  document.getElementById("game-number").textContent = "#" + game_state.number;
+  prev.hidden = game_state.number <= 1;
+  next.hidden = game_state.number >= game_state.today_number;
+  prev.onclick = () => {
+    window.location.href = gameUrl(game_state.number - 1, game_state.today_number, game_state.base);
+  };
+  next.onclick = () => {
+    window.location.href = gameUrl(game_state.number + 1, game_state.today_number, game_state.base);
+  };
 }
 
 // The itinerary strip: how many steps of the shortest route are done.
@@ -116,9 +165,15 @@ function renderJourney() {
   document.getElementById("journey").innerHTML = html;
 }
 
+// Progress is keyed per day so playing a previous game doesn't clobber
+// today's (#35)
+function progressKey() {
+  return STORAGE_KEY + "-" + game_state.day;
+}
+
 function saveProgress() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    localStorage.setItem(progressKey(), JSON.stringify({
       day: game_state.day,
       events: game_state.events
     }));
@@ -131,7 +186,14 @@ function saveProgress() {
 function restoreProgress(svgElement) {
   let saved = null;
   try {
-    saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+    saved = JSON.parse(localStorage.getItem(progressKey()));
+    // Migrate the old single-key format (only ever held today's game)
+    if (!saved) {
+      const legacy = JSON.parse(localStorage.getItem(STORAGE_KEY));
+      if (legacy && legacy.day === game_state.day) {
+        saved = legacy;
+      }
+    }
   } catch (err) {
     return;
   }
@@ -541,6 +603,10 @@ function applyTranslations() {
   document.getElementById("btn-hint").title = t("hint_button_title");
   document.getElementById("btn-stats").title = t("stats_title");
   document.getElementById("btn-share").textContent = t("share_button");
+  document.getElementById("btn-prev").title = t("prev_game");
+  document.getElementById("btn-prev").setAttribute("aria-label", t("prev_game"));
+  document.getElementById("btn-next").title = t("next_game_nav");
+  document.getElementById("btn-next").setAttribute("aria-label", t("next_game_nav"));
 
   const langSelect = document.getElementById("lang-select");
   langSelect.value = currentLang;
@@ -579,13 +645,21 @@ function endGame(message, color, live = true) {
 
   const won = game_state.shortests_paths.some(path => path.length === 0);
   renderJourney();
-  recordGameEnd(won);
-  drawRouteLine(won, live);
-  if (live && won) {
-    launchConfetti();
+  // Only the real daily game counts toward stats and streaks; replaying a
+  // past game is practice (#35)
+  if (game_state.is_today) {
+    recordGameEnd(won);
   }
-  // Let the route finish drawing before the modal covers it
-  setTimeout(openStatsModal, live && won ? 1800 : 900);
+  drawRouteLine(won, live);
+  if (live) {
+    if (won) {
+      launchConfetti();
+    }
+    // Auto-open the results only when finishing during play; on restore
+    // or when browsing a finished past game the board just shows the
+    // route, leaving the nav arrows reachable (stats stay one tap away)
+    setTimeout(openStatsModal, won ? 1800 : 900);
+  }
 }
 
 // ---- Stats, streaks and the end-game modal ----
@@ -657,7 +731,14 @@ function openStatsModal() {
 
   document.getElementById("btn-share").hidden = game_state.game_running;
   document.getElementById("modal-feedback").textContent = "";
-  startCountdown();
+  // The "next viatgle" countdown only makes sense on today's game
+  const countdown = document.querySelector(".countdown");
+  if (game_state.is_today) {
+    countdown.style.display = "";
+    startCountdown();
+  } else {
+    countdown.style.display = "none";
+  }
   document.getElementById("modal-overlay").hidden = false;
 }
 
