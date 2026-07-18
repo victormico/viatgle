@@ -99,6 +99,21 @@ async function initializeGame() {
   restoreProgress(svgElement);
   updateGuessButton();
   updateHintButton();
+  renderJourney();
+}
+
+// The itinerary strip: how many steps of the shortest route are done.
+// Progress follows the most advanced remaining path, since any of them
+// can become the winning one.
+function renderJourney() {
+  const total = game_state.shortest_path_length;
+  const done = total - Math.min(...game_state.shortests_paths.map(path => path.length));
+  let html = '<span class="journey-node journey-start"></span>';
+  for (let i = 0; i < total; i++) {
+    html += `<span class="journey-step${i < done ? " done" : ""}"></span>`;
+  }
+  html += '<span class="journey-node journey-end"></span>';
+  document.getElementById("journey").innerHTML = html;
 }
 
 function saveProgress() {
@@ -306,6 +321,7 @@ function applyGuess(comarca, save = true) {
 
   checkOutOfGuesses(save);
   updateGuessButton();
+  renderJourney();
 }
 
 // Progressive hints (issue #17): each hint costs one guess slot.
@@ -346,6 +362,7 @@ function applyHint(save = true) {
   updateHintButton();
   checkOutOfGuesses(save);
   updateGuessButton();
+  renderJourney();
 }
 
 // ---- Fog of war: unguessed comarques show as pale ghosts ----
@@ -549,6 +566,7 @@ function endGame(message, color, live = true) {
   document.getElementById("btn-hint").disabled = true;
 
   const won = game_state.shortests_paths.some(path => path.length === 0);
+  renderJourney();
   recordGameEnd(won);
   drawRouteLine(won, live);
   if (live && won) {
