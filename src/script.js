@@ -4,10 +4,51 @@ let game_state = {}; // Initialize game state
 const maxIncorrectGuesses = 5;
 const STORAGE_KEY = "viatgle-progress";
 const STATS_KEY = "viatgle-stats";
+const THEME_KEY = "viatgle-theme";
 const GAME_URL = "https://victormico.github.io/viatgle";
+
+// ---- Light / dark theme (#42) ----
+
+// The active theme: an explicit choice if stored, otherwise the system
+// preference. A tiny script in <head> applies the stored choice before
+// first paint to avoid a flash.
+function effectiveTheme() {
+  const stored = localStorage.getItem(THEME_KEY);
+  if (stored === "light" || stored === "dark") {
+    return stored;
+  }
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function updateThemeIcon(theme) {
+  // Show the icon of the mode the button switches TO
+  document.getElementById("btn-theme").textContent = theme === "dark" ? "☀️" : "🌙";
+}
+
+function setTheme(theme) {
+  localStorage.setItem(THEME_KEY, theme);
+  document.documentElement.setAttribute("data-theme", theme);
+  updateThemeIcon(theme);
+  applyMapTheme();
+}
+
+function setupTheme() {
+  updateThemeIcon(effectiveTheme());
+  document.getElementById("btn-theme").addEventListener("click", () => {
+    setTheme(effectiveTheme() === "dark" ? "light" : "dark");
+  });
+  // Follow the system while the player hasn't made an explicit choice
+  window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", (e) => {
+    if (!localStorage.getItem(THEME_KEY)) {
+      updateThemeIcon(e.matches ? "dark" : "light");
+      applyMapTheme();
+    }
+  });
+}
 
 document.addEventListener("DOMContentLoaded", () => {
   applyTranslations();
+  setupTheme();
   // Load the map
   fetch("master.svg")
     .then(response => response.text())
@@ -440,20 +481,42 @@ function applyHint(save = true) {
 
 // ---- Fog of war: unguessed comarques show as pale ghosts ----
 
-const GHOST_FILL = "#f6f3eb";
-const GHOST_STROKE = "#d8d2c4";
+// Read a CSS custom property so the map follows the active light/dark theme
+function cssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
 
 function ghostComarca(group) {
+  const fill = cssVar("--land-ghost");
+  const stroke = cssVar("--land-ghost-stroke");
   comarcaShapes(group).forEach(shape => {
     if (!shape.dataset.ghost) {
       shape.dataset.ghost = "true";
       shape.dataset.ghostPrevFill = shape.style.fill;
       shape.dataset.ghostPrevStroke = shape.style.stroke;
-      shape.style.fill = GHOST_FILL;
-      shape.style.stroke = GHOST_STROKE;
     }
+    shape.style.fill = fill;
+    shape.style.stroke = stroke;
   });
   group.classList.add("ghost");
+}
+
+// Re-tint the ghosted land when the theme changes at runtime
+function applyMapTheme() {
+  const svgElement = document.querySelector("svg");
+  if (!svgElement) {
+    return;
+  }
+  const fill = cssVar("--land-ghost");
+  const stroke = cssVar("--land-ghost-stroke");
+  svgElement.querySelectorAll("g.ghost").forEach(group => {
+    comarcaShapes(group).forEach(shape => {
+      if (shape.dataset.ghost) {
+        shape.style.fill = fill;
+        shape.style.stroke = stroke;
+      }
+    });
+  });
 }
 
 function unghostComarca(group) {
@@ -603,6 +666,8 @@ function applyTranslations() {
   document.getElementById("btn-hint").title = t("hint_button_title");
   document.getElementById("btn-stats").title = t("stats_title");
   document.getElementById("btn-share").textContent = t("share_button");
+  document.getElementById("btn-theme").setAttribute("aria-label", t("toggle_theme"));
+  document.getElementById("btn-theme").title = t("toggle_theme");
   document.getElementById("btn-prev").title = t("prev_game");
   document.getElementById("btn-prev").setAttribute("aria-label", t("prev_game"));
   document.getElementById("btn-next").title = t("next_game_nav");

@@ -1,9 +1,10 @@
 :root {
-  /* Route endpoints */
+  /* Route endpoints — kept identical across themes so the pins drawn on
+     the SVG (colored once, at load) stay correct through a live toggle */
   --start-color: #cc2e95;
   --end-color: #3c64e7;
 
-  /* Brand / UI palette */
+  /* Light palette (default) */
   --primary: #2e7d32;
   --primary-dark: #256428;
   --bg-top: #e8f0f6;
@@ -13,10 +14,11 @@
   --text-muted: #6b7280;
   --border: #d7dde4;
   --track: #d3d8dd;
-
-  /* Map */
+  --hover: #f1f4f7;
   --sea: #e6eef4;
   --map-border: #cfd8e0;
+  --land-ghost: #f6f3eb;
+  --land-ghost-stroke: #d8d2c4;
 
   /* Shape & depth */
   --radius: 14px;
@@ -26,6 +28,50 @@
   --shadow-lg: 0 14px 44px rgba(16, 24, 40, 0.24);
 
   --font: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+/* Dark palette: applied explicitly via [data-theme="dark"], and
+   automatically when the system prefers dark and no explicit choice is set */
+:root[data-theme="dark"] {
+  --primary: #4caf50;
+  --primary-dark: #3d8b41;
+  --bg-top: #1a2530;
+  --bg-bottom: #0f1216;
+  --surface: #222831;
+  --text: #e7ebf0;
+  --text-muted: #9aa4b0;
+  --border: #39424d;
+  --track: #3a434e;
+  --hover: #2c333d;
+  --sea: #16222c;
+  --map-border: #2c3742;
+  --land-ghost: #2a313a;
+  --land-ghost-stroke: #3c4650;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 14px 44px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --primary: #4caf50;
+    --primary-dark: #3d8b41;
+    --bg-top: #1a2530;
+    --bg-bottom: #0f1216;
+    --surface: #222831;
+    --text: #e7ebf0;
+    --text-muted: #9aa4b0;
+    --border: #39424d;
+    --track: #3a434e;
+    --hover: #2c333d;
+    --sea: #16222c;
+    --map-border: #2c3742;
+    --land-ghost: #2a313a;
+    --land-ghost-stroke: #3c4650;
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+    --shadow-lg: 0 14px 44px rgba(0, 0, 0, 0.6);
+  }
 }
 
 * {
@@ -66,6 +112,28 @@ body {
   cursor: pointer;
 }
 
+.theme-toggle {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  background-color: var(--hover);
+}
+
 h1 {
   font-size: 1.4rem;
   font-weight: 600;
@@ -98,7 +166,7 @@ h1 {
 }
 
 .nav-arrow:hover {
-  background-color: #f4f6f8;
+  background-color: var(--hover);
 }
 
 .nav-arrow[hidden] {
@@ -156,15 +224,17 @@ h1 {
   line-height: 1;
   border: 1px solid var(--border);
   border-radius: 10px;
-  background-color: rgba(255, 255, 255, 0.85);
+  background-color: var(--surface);
   box-shadow: var(--shadow-sm);
   color: var(--text);
   cursor: pointer;
+  opacity: 0.9;
   transition: background-color 0.15s ease;
 }
 
 .zoom-controls button:hover {
-  background-color: #ffffff;
+  background-color: var(--hover);
+  opacity: 1;
 }
 
 /* The SVG stays invisible until the fog-of-war ghost styling has been
@@ -357,7 +427,7 @@ button.guess-button:disabled {
 
 .dropdown-item:hover,
 .dropdown-item.active {
-  background-color: #eaf2ec;
+  background-color: var(--hover);
 }
 
 .toolbar {
@@ -383,7 +453,7 @@ button.stats-button {
 
 button.hint-button:hover:not(:disabled),
 button.stats-button:hover {
-  background-color: #f4f6f8;
+  background-color: var(--hover);
 }
 
 button.hint-button:disabled {
@@ -516,7 +586,7 @@ button.share-button:hover {
 }
 
 .modal-close:hover {
-  background-color: #f0f2f4;
+  background-color: var(--hover);
 }
 
 .stats-grid {
@@ -593,7 +663,7 @@ button.share-button:hover {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-top: 1px solid #eef0f2;
+  border-top: 1px solid var(--border);
   padding-top: 18px;
 }
 
