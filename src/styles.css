@@ -195,7 +195,10 @@ h1 {
 #map-container {
   border: 1px solid var(--map-border);
   border-radius: var(--radius);
-  width: auto;
+  /* Definite width so max-height capping shrinks only the height, not the
+     width — with width:auto the aspect-ratio shrinks the width and the box
+     drifts off-centre */
+  width: 100%;
   /* A fixed aspect ratio gives the map a known height so it can be shrunk
      when the keyboard is open; the SVG scales to fit (never clips) */
   aspect-ratio: 595.3 / 673;
