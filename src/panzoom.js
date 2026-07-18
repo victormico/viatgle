@@ -55,6 +55,29 @@ function initPanZoom(svgElement, container) {
     applyViewBox();
   }
 
+  // Frame a region (x, y, w, h in SVG units), growing it to the container's
+  // aspect ratio and clamping to the map bounds and max zoom. Used to focus
+  // the start/end at load and to keep them framed when the map is shrunk.
+  function fit(bx, by, bw, bh) {
+    const rect = svgElement.getBoundingClientRect();
+    const aspect = (rect.width && rect.height) ? rect.width / rect.height : fullW / fullH;
+    const cx = bx + bw / 2;
+    const cy = by + bh / 2;
+    let vw = Math.max(bw, bh * aspect);
+    vw = Math.min(Math.max(vw, fullW / MAX_ZOOM), fullW);
+    let vh = vw / aspect;
+    if (vh > fullH) {
+      vh = fullH;
+      vw = Math.min(vh * aspect, fullW);
+    }
+    vb.w = vw;
+    vb.h = vh;
+    vb.x = cx - vw / 2;
+    vb.y = cy - vh / 2;
+    clampPan();
+    applyViewBox();
+  }
+
   container.addEventListener("wheel", (e) => {
     e.preventDefault();
     zoomAt(toSvgPoint(e.clientX, e.clientY), e.deltaY > 0 ? WHEEL_STEP : 1 / WHEEL_STEP);
@@ -128,4 +151,6 @@ function initPanZoom(svgElement, container) {
     controls.appendChild(button);
   });
   container.appendChild(controls);
+
+  return { fit, reset };
 }

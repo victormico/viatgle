@@ -1,5 +1,7 @@
 let adjacencyMap = {}; // Store the adjacency map for the comarques
 let game_state = {}; // Initialize game state
+let panzoom = null; // Pan/zoom API for the map
+let focusRegion = null; // Padded bbox framing the start and end comarques
 
 const maxIncorrectGuesses = 5;
 const STORAGE_KEY = "viatgle-progress";
@@ -147,7 +149,10 @@ async function initializeGame() {
   document.getElementById("map-container").classList.add("ready");
 
   populateDropdown(svgElement);
-  initPanZoom(svgElement, document.getElementById("map-container"));
+  panzoom = initPanZoom(svgElement, document.getElementById("map-container"));
+  focusRegion = endpointsRegion(svgElement);
+  focusMap();
+  setupKeyboardHandling();
   setGameTitle(getComarcaName(game_state.start, svgElement), getComarcaName(game_state.end, svgElement));
   setupGameNav();
 
@@ -155,6 +160,47 @@ async function initializeGame() {
   updateGuessButton();
   updateHintButton();
   renderJourney();
+}
+
+// The start and end can be small and far apart; frame them (with generous
+// surrounding context) instead of showing the whole map, which matters most
+// on phones (#42 mobile pass)
+function endpointsRegion(svgElement) {
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  [game_state.start, game_state.end].forEach(id => {
+    comarcaShapes(svgElement.querySelector(`g#${id}`)).forEach(shape => {
+      const b = shape.getBBox();
+      x0 = Math.min(x0, b.x);
+      y0 = Math.min(y0, b.y);
+      x1 = Math.max(x1, b.x + b.width);
+      y1 = Math.max(y1, b.y + b.height);
+    });
+  });
+  const w = x1 - x0;
+  const h = y1 - y0;
+  const margin = Math.max(w, h) * 0.7; // show neighbouring comarques too
+  return { x: x0 - margin, y: y0 - margin, w: w + margin * 2, h: h + margin * 2 };
+}
+
+function focusMap() {
+  if (panzoom && focusRegion) {
+    panzoom.fit(focusRegion.x, focusRegion.y, focusRegion.w, focusRegion.h);
+  }
+}
+
+// On phones the on-screen keyboard covers most of the map. Shrinking it
+// (via a body class) keeps the framed endpoints visible above the keyboard,
+// and we re-fit after the layout settles so nothing is cut off.
+function setupKeyboardHandling() {
+  const input = document.getElementById("comarques-input");
+  input.addEventListener("focus", () => {
+    document.body.classList.add("input-focused");
+    setTimeout(focusMap, 300);
+  });
+  input.addEventListener("blur", () => {
+    document.body.classList.remove("input-focused");
+    setTimeout(focusMap, 300);
+  });
 }
 
 // ---- Previous-game navigation (#35) ----
