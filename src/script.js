@@ -540,13 +540,14 @@ function applyTranslations() {
 }
 
 // The title keeps the colored start/end spans, so build it from the
-// translated template with placeholders swapped for the spans.
-// {de_start} (Catalan) resolves the elided particle first: d'Osona / de Garrotxa.
+// translated template. Each place gets its language-specific preposition +
+// article prefix (de la / al / de l' / from ...) with the name in a span.
 function setGameTitle(startName, endName) {
+  const fromHtml = articlePrefix("de", game_state.start, startName) + '<span id="start-comarca"></span>';
+  const toHtml = articlePrefix("a", game_state.end, endName) + '<span id="end-comarca"></span>';
   document.getElementById("game-title").innerHTML = t("title")
-    .replace("{de_start}", caDeParticle(startName) + "{start}")
-    .replace("{start}", '<span id="start-comarca"></span>')
-    .replace("{end}", '<span id="end-comarca"></span>');
+    .replace("{from}", fromHtml)
+    .replace("{to}", toHtml);
   document.getElementById("start-comarca").textContent = startName;
   document.getElementById("end-comarca").textContent = endName;
 }

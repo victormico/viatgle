@@ -3,7 +3,7 @@
 // browser language, then Catalan.
 const TRANSLATIONS = {
   ca: {
-    title: "Avui m'agradaria anar {de_start} a {end}.",
+    title: "Avui m'agradaria anar {from} {to}.",
     input_placeholder: "Escriu una comarca...",
     guess_button: "Endevina ({n}/{max})",
     hint_button_title: "Fes servir una pista (costa una tirada)",
@@ -29,7 +29,7 @@ const TRANSLATIONS = {
     next_game: "Següent viatgle en"
   },
   es: {
-    title: "Hoy me gustaría ir de {start} a {end}.",
+    title: "Hoy me gustaría ir {from} {to}.",
     input_placeholder: "Escribe una comarca...",
     guess_button: "Adivina ({n}/{max})",
     hint_button_title: "Usa una pista (cuesta un intento)",
@@ -55,7 +55,7 @@ const TRANSLATIONS = {
     next_game: "Siguiente viatgle en"
   },
   en: {
-    title: "Today I'd like to go from {start} to {end}.",
+    title: "Today I'd like to go {from} {to}.",
     input_placeholder: "Enter a comarca...",
     guess_button: "Guess ({n}/{max})",
     hint_button_title: "Use a hint (costs one guess)",
@@ -103,7 +103,72 @@ function t(key, params = {}) {
   return text;
 }
 
-// Catalan elides "de" before a vowel or h: "d'Osona", "de Garrotxa"
-function caDeParticle(name) {
-  return /^[aeiouhàèéíòóú]/i.test(name) ? "d'" : "de ";
+// Grammatical article of each comarca, so the title reads
+// "de la Costera al Camp de Túria" rather than "de Costera a Camp de Túria".
+// Token: m = el/l' · f = la/l' · mp = els · fp = les · "" = no article
+// (islands, countries and a few others). Same gender drives Catalan and
+// Spanish; English ignores it (proper nouns take no article).
+const COMARCA_ARTICLES = {
+  alacanti: "m", alcalaten: "m", alcoia: "m", alt_camp: "m", alt_emporda: "m",
+  alt_maestrat: "m", alt_millars: "m", alt_palancia: "m", alt_penedes: "m",
+  alt_urgell: "m", alt_vinalopo: "m", alta_cerdanya: "f", alta_ribagorca: "f",
+  andorra: "", anoia: "f", bages: "m", baix_camp: "m", baix_cinca: "m",
+  baix_ebre: "m", baix_emporda: "m", baix_llobregat: "m", baix_maestrat: "m",
+  baix_penedes: "m", baix_segura: "m", baix_vinalopo: "m", barcelones: "m",
+  bergueda: "m", camp_de_morvedre: "m", camp_de_turia: "m", canal_de_navarres: "f",
+  capcir: "m", carxe: "m", cerdanya: "f", comtat: "m", conca_de_barbera: "f",
+  conflent: "m", costera: "f", eivissa: "", fenolleda: "f", foia_de_bunyol: "f",
+  formentera: "", garraf: "m", garrigues: "fp", garrotxa: "f", girones: "m",
+  horta: "f", l_alguer: "", llitera: "f", mallorca_occidental: "",
+  mallorca_oriental: "", mallorca_septentrional: "", maresme: "m", marina_alta: "f",
+  marina_baixa: "f", matarranya: "m", menorca: "", moianes: "m", montsia: "m",
+  noguera: "f", osona: "", pallars_jussa: "m", pallars_sobira: "m", pla_d_urgell: "m",
+  pla_de_l_estany: "m", plana_alta: "f", plana_baixa: "f", plana_d_utiel_requena: "f",
+  ports: "mp", priorat: "m", raco_d_ademus: "m", ribagorca: "f", ribera_alta: "f",
+  ribera_baixa: "f", ribera_d_ebre: "f", ripolles: "m", rossello: "m", safor: "f",
+  segarra: "f", segria: "m", selva: "f", serrans: "f", solsones: "m",
+  tarragones: "m", terra_alta: "f", urgell: "m", vall_d_albaida: "f", vall_d_aran: "f",
+  vall_de_cofrents_aiora: "f", vallespir: "m", valls_del_vinalopo: "fp",
+  valles_occidental: "m", valles_oriental: "m", vinalopo_mitja: "m"
+};
+
+function comarcaArticle(id) {
+  return COMARCA_ARTICLES[id] || "";
+}
+
+function startsWithVowel(name) {
+  return /^[aeiouhàèéíïòóúü]/i.test(name);
+}
+
+// The prefix that precedes the comarca name for a given preposition
+// ("de" or "a") in the active language, e.g. "de la ", "al ", "de l'",
+// "from ". Elision (l') abuts the name; other forms end with a space.
+function articlePrefix(prep, id, name) {
+  const article = comarcaArticle(id);
+  const vowel = startsWithVowel(name);
+
+  if (currentLang === "en") {
+    return prep === "de" ? "from " : "to ";
+  }
+
+  if (currentLang === "es") {
+    if (prep === "de") {
+      return { m: "del ", f: "de la ", mp: "de los ", fp: "de las " }[article] || "de ";
+    }
+    return { m: "al ", f: "a la ", mp: "a los ", fp: "a las " }[article] || "a ";
+  }
+
+  // Catalan
+  if (prep === "de") {
+    if (article === "m") return vowel ? "de l'" : "del ";
+    if (article === "f") return vowel ? "de l'" : "de la ";
+    if (article === "mp") return "dels ";
+    if (article === "fp") return "de les ";
+    return vowel ? "d'" : "de ";
+  }
+  if (article === "m") return vowel ? "a l'" : "al ";
+  if (article === "f") return vowel ? "a l'" : "a la ";
+  if (article === "mp") return "als ";
+  if (article === "fp") return "a les ";
+  return "a "; // Catalan "a" does not elide before a vowel
 }
