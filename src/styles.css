@@ -136,6 +136,45 @@ g.revealed {
   pointer-events: none;
 }
 
+/* Itinerary strip: start pin — step dots — end pin */
+.journey {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 4px 10px 12px;
+  min-height: 16px;
+}
+
+.journey-node {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.journey-start {
+  background-color: var(--start-color);
+}
+
+.journey-end {
+  background-color: var(--end-color);
+}
+
+.journey-step {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #d3d8dd;
+  flex-shrink: 0;
+  transition: background-color 0.4s ease, transform 0.4s ease;
+}
+
+.journey-step.done {
+  background-color: #2e7d32;
+  transform: scale(1.15);
+}
+
 /* Floating pill guess bar */
 .guess-bar {
   position: relative;
