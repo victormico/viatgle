@@ -8,9 +8,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="styles.css">
+  <script>
+    // Apply a saved light/dark choice before first paint to avoid a flash
+    // (no choice = follow the system via the CSS prefers-color-scheme rule)
+    (function () {
+      try {
+        var t = localStorage.getItem("viatgle-theme");
+        if (t === "light" || t === "dark") {
+          document.documentElement.setAttribute("data-theme", t);
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <div class="game-container">
+    <button id="btn-theme" class="theme-toggle" type="button" aria-label="Theme">🌙</button>
     <select id="lang-select" class="lang-select" aria-label="Idioma / Language">
       <option value="ca">Català</option>
       <option value="es">Castellano</option>

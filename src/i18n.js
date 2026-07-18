@@ -29,7 +29,8 @@ const TRANSLATIONS = {
     dist_title: "Tirades de més",
     next_game: "Següent viatgle en",
     prev_game: "Joc anterior",
-    next_game_nav: "Joc següent"
+    next_game_nav: "Joc següent",
+    toggle_theme: "Canvia el tema"
   },
   es: {
     title: "Hoy me gustaría ir {from} {to}.",
@@ -58,7 +59,8 @@ const TRANSLATIONS = {
     dist_title: "Intentos de más",
     next_game: "Siguiente viatgle en",
     prev_game: "Juego anterior",
-    next_game_nav: "Juego siguiente"
+    next_game_nav: "Juego siguiente",
+    toggle_theme: "Cambiar el tema"
   },
   en: {
     title: "Today I'd like to go {from} {to}.",
@@ -87,7 +89,8 @@ const TRANSLATIONS = {
     dist_title: "Extra guesses",
     next_game: "Next viatgle in",
     prev_game: "Previous game",
-    next_game_nav: "Next game"
+    next_game_nav: "Next game",
+    toggle_theme: "Toggle theme"
   }
 };
 
