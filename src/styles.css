@@ -759,25 +759,15 @@ button.share-button:hover {
   }
 
   #map-container {
-    max-height: 48vh;
+    max-height: 46vh;
   }
 
-  /* When the keyboard is open, free vertical space and shrink the map so
-     the framed start/end stay visible above the keyboard */
-  body.input-focused #game-title,
-  body.input-focused .game-nav,
-  body.input-focused .toolbar,
-  body.input-focused #guess-history {
-    display: none;
-  }
-
-  body.input-focused .game-container {
-    padding-top: 14px;
-  }
-
+  /* When the keyboard is open, shrink the map a little so it stays visible
+     above the keyboard. The map keeps its current view (no re-fit) and the
+     title, nav and hints stay put — the SVG just scales down to fit. */
   body.input-focused #map-container {
     aspect-ratio: auto;
-    height: 34vh;
-    max-height: 34vh;
+    height: 40vh;
+    max-height: 40vh;
   }
 }

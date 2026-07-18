@@ -191,19 +191,14 @@ function focusMap() {
   }
 }
 
-// On phones the on-screen keyboard covers most of the map. Shrinking it
-// (via a body class) keeps the framed endpoints visible above the keyboard,
-// and we re-fit after the layout settles so nothing is cut off.
+// On phones the on-screen keyboard covers most of the map. A body class
+// shrinks the map a little (CSS) so it stays visible above the keyboard.
+// We deliberately do NOT re-fit or hide anything here — the map keeps the
+// player's current view so nothing jumps.
 function setupKeyboardHandling() {
   const input = document.getElementById("comarques-input");
-  input.addEventListener("focus", () => {
-    document.body.classList.add("input-focused");
-    setTimeout(focusMap, 300);
-  });
-  input.addEventListener("blur", () => {
-    document.body.classList.remove("input-focused");
-    setTimeout(focusMap, 300);
-  });
+  input.addEventListener("focus", () => document.body.classList.add("input-focused"));
+  input.addEventListener("blur", () => document.body.classList.remove("input-focused"));
 }
 
 // ---- Previous-game navigation (#35) ----
@@ -350,6 +345,11 @@ function populateDropdown(svgElement) {
   }
 
   input.addEventListener("input", renderSuggestions);
+
+  // Keep the input focused when tapping a suggestion, so the keyboard
+  // doesn't close and reopen (which would flicker the map) between picking
+  // a comarca and pressing Guess
+  dropdown.addEventListener("mousedown", (e) => e.preventDefault());
 
   // One delegated listener instead of re-binding on every keystroke
   dropdown.addEventListener("click", (e) => {
