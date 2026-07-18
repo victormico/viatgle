@@ -75,6 +75,45 @@ h1 {
   color: var(--text);
 }
 
+.game-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: -8px 0 14px;
+}
+
+.nav-arrow {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background-color: var(--surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.nav-arrow:hover {
+  background-color: #f4f6f8;
+}
+
+.nav-arrow[hidden] {
+  /* Keep the number centered when an arrow is missing */
+  display: inline-block;
+  visibility: hidden;
+}
+
+.game-number {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  min-width: 44px;
+}
+
 #start-comarca {
   color: var(--start-color);
   font-weight: 700;
